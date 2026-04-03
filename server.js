@@ -68,7 +68,7 @@ passport.use(new GoogleStrategy({
         email: profile.emails[0].value,
         googleId: profile.id,
         foto: profile.photos[0].value, // foto de perfil de Google
-        rol: 'usuario' // por defecto
+        rol: 'editor' // temporal para testing
       });
       await usuario.save();
     } else {

@@ -8,40 +8,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .main-header {
-            background: linear-gradient(135deg, #2c3e50 0%, #096dce 40%, #1abc9c 100%);
+            background: linear-gradient(135deg, #0f7e3f, #2cae43);
             color: #fff;
-            text-align: center;
-            padding: 25px 20px;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.25);
+            text-align: left;
+            padding: 18px 24px;
+            border-bottom: 2px solid #0b5931;
         }
-        .main-header h1 { margin: 0; font-size: 2.1rem; letter-spacing: 0.08rem; text-transform: uppercase; }
-        .main-header p { margin: 6px 0 12px; opacity: 0.85; }
+        .main-header h1 { margin: 0; font-size: 1.25rem; letter-spacing: 0.02rem; text-transform: none; font-weight: 700; display:flex; align-items:center; gap:10px; }
+        .main-header p { margin: 6px 0 10px; opacity: 0.9; font-size:0.94rem; }
         .main-header .btn-submit {
-            margin-top: 6px;
-            background: #ffeb3b;
-            color: #222;
-            border: none;
-            box-shadow: 0 2px 7px rgba(0,0,0,0.18);
-            text-transform: uppercase;
-            font-weight: 700;
+            margin-top: 0;
+            background: #fff;
+            color: #0f7e3f;
+            border: 1px solid #0f7e3f;
+            box-shadow: none;
+            text-transform: none;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 5px;
         }
-        .news-feed { display: flex; flex-direction: column; gap: 18px; padding: 18px 20px 28px; background: #f5fbff; min-height: calc(100vh - 164px); }
+        .news-feed { display: flex; flex-direction: column; gap: 14px; padding: 16px 20px 24px; background: #f2faf2; min-height: calc(100vh - 147px); }
         .news-card {
-            background: linear-gradient(135deg, #ffffff, #f7fcff);
-            border-radius: 12px;
-            border: 1px solid rgba(29, 110, 210, 0.16);
-            box-shadow: 0 6px 18px rgba(13, 55, 124, 0.1);
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid rgba(34, 105, 68, 0.17);
+            box-shadow: 0 2px 9px rgba(0,0,0,0.08);
             overflow: hidden;
             cursor: pointer;
-            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
             display: flex;
             flex-wrap: wrap;
-            border-left: 6px solid #0984e3;
+            border-left: 6px solid #4caf50;
         }
         .news-card:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(13,55,124,0.2); }
         .news-card.destacada { border-left-color: #d32f2f; }
-        .card-content { display: flex; padding: 15px; }
-        .card-thumbnail { width: 120px; height: 80px; background: #f5f5f5; border-radius: 4px; margin-right: 15px; overflow: hidden; }
+        .card-content { display: flex; padding: 12px; }
+        .card-thumbnail-btn { border: none; background: none; padding: 0; margin-right: 14px; cursor: pointer; }
+        .card-thumbnail { width: 120px; height: 80px; background: #f5f5f5; border-radius: 6px; overflow: hidden; display:flex; align-items:center; justify-content:center; }
         .card-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
         .card-text { flex: 1; }
         .card-title { font-size: 18px; font-weight: 600; margin-bottom: 5px; color: #333; }
@@ -76,22 +79,33 @@
     </style>
 </head>
 <body>
-    <header class="main-header">
-        <h1>Alertas y Noticias</h1>
-        <p>Información actualizada del distrito</p>
-        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    <header class="main-header" style="background: linear-gradient(135deg, #0f7e3f, #2cae43); color:#fff;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <i class="fa-solid fa-newspaper" style="font-size:1.35rem;"></i>
+                <h1 style="font-size:1.25rem; margin:0;">Noticias Nacionales</h1>
+            </div>
+            <a href="inicio.html" class="btn-submit" style="background:#fff;color:#0f7e3f;border:1px solid #fff;font-size:0.85rem;">Volver al Inicio</a>
+        </div>
+        <p style="margin: 8px 0 12px; color:rgba(255,255,255,0.92); font-weight:600;">Información oficial y verificada del distrito.</p>
     </header>
 
     <div class="filter-bar">
-        <label>Filtrar por categoría: </label>
-        <select id="categoriaFilter" class="filter-select">
-            <option value="">Todas</option>
-            <option value="seguridad">Seguridad</option>
-            <option value="infraestructura">Infraestructura</option>
-            <option value="medioambiente">Medio Ambiente</option>
-            <option value="gobierno">Gobierno</option>
-            <option value="otro">Otro</option>
-        </select>
+        <div>
+            <label for="categoriaFilter">Filtrar por categoría:</label>
+            <select id="categoriaFilter" class="filter-select">
+                <option value="">Todas</option>
+                <option value="seguridad">Seguridad</option>
+                <option value="infraestructura">Infraestructura</option>
+                <option value="medioambiente">Medio Ambiente</option>
+                <option value="gobierno">Gobierno</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div>
+            <label for="querySearch">Buscar:</label>
+            <input id="querySearch" class="filter-select" style="width:320px;" type="search" placeholder="Buscar por título, resumen o tags...">
+        </div>
     </div>
 
     <main class="news-feed" id="newsFeed">
@@ -114,6 +128,14 @@
                 const url = categoria ? `/api/noticias?categoria=${categoria}` : '/api/noticias';
                 const response = await fetch(url);
                 noticias = await response.json();
+                noticias.sort((a, b) => {
+                    const da = new Date(a.fechaPublicacion || a.creadoEn || a.updatedAt).getTime();
+                    const db = new Date(b.fechaPublicacion || b.creadoEn || b.updatedAt).getTime();
+                    const prioridadScore = (val) => val === 'destacada' ? 10 : 0;
+                    const p = (prioridadScore(b.prioridad) - prioridadScore(a.prioridad));
+                    if (p !== 0) return p;
+                    return db - da;
+                });
                 renderFeed();
             } catch (error) {
                 console.error('Error cargando noticias:', error);
@@ -123,19 +145,30 @@
 
         function renderFeed() {
             const feed = document.getElementById('newsFeed');
-            if (noticias.length === 0) {
-                feed.innerHTML = '<div class="no-news">No hay noticias publicadas</div>';
+            const query = (document.getElementById('querySearch').value || '').trim().toLowerCase();
+            let filtered = noticias;
+            if (query) {
+                filtered = noticias.filter(noticia => {
+                    const haystack = `${noticia.titulo} ${noticia.resumen} ${noticia.tags.join(' ')}`.toLowerCase();
+                    return haystack.includes(query);
+                });
+            }
+
+            if (filtered.length === 0) {
+                feed.innerHTML = '<div class="no-news">No se encontraron resultados</div>';
                 return;
             }
-            feed.innerHTML = noticias.map(noticia => {
+            feed.innerHTML = filtered.map(noticia => {
                 const isRead = readNews.includes(noticia._id);
                 return `
                 <div class="news-card ${noticia.prioridad === 'destacada' ? 'destacada' : ''} ${isRead ? 'read' : 'unread'}" onclick="openDetail('${noticia._id}')">
-                    <div class="card-content">
-                        <div class="card-thumbnail">
-                            ${noticia.imagenPrincipal ? `<img src="${noticia.imagenPrincipal}" alt="${noticia.titulo}">` : '<i class="fas fa-newspaper fa-2x" style="color: #ccc; margin: 20px;"></i>'}
-                        </div>
-                        <div class="card-text">
+                        <div class="card-content">
+                        <button class="card-thumbnail-btn" onclick="openDetail('${noticia._id}')" aria-label="Ver detalle">
+                            <div class="card-thumbnail">
+                                ${noticia.imagenPrincipal ? `<img src="${noticia.imagenPrincipal}" alt="${noticia.titulo}">` : '<i class="fas fa-newspaper fa-2x" style="color: #ccc; margin: 20px;"></i>'}
+                            </div>
+                        </button>
+                        <div class="card-text" onclick="openDetail('${noticia._id}')" style="cursor:pointer;">
                             <div class="card-title">${noticia.titulo} ${!isRead ? '<span class="new-badge">NUEVO</span>' : ''}</div>
                             <div class="card-summary">${noticia.resumen}</div>
                             <div class="card-meta">
@@ -165,10 +198,12 @@
 
             content.innerHTML = `
                 <div class="detail-header">
-                    <h1 class="detail-title">${noticia.titulo}</h1>
-                    <div class="detail-meta">
-                        ${noticia.autor ? `Por ${noticia.autor.nombre} • ` : ''}${new Date(noticia.fechaPublicacion || noticia.creadoEn).toLocaleDateString()}
-                        ${noticia.tags.length ? ` • ${noticia.tags.join(', ')}` : ''}
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                        <div>
+                            <h1 class="detail-title" style="margin:0;">${noticia.titulo}</h1>
+                            <div class="detail-meta" style="margin-top:4px;">${new Date(noticia.fechaPublicacion || noticia.creadoEn).toLocaleDateString()} ${noticia.tags.length ? ` • ${noticia.tags.join(', ')}` : ''}</div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="closeDetail()" style="padding:5px 10px; font-size:0.82rem;">Volver</button>
                     </div>
                 </div>
                 ${noticia.imagenPrincipal ? `<img src="${noticia.imagenPrincipal}" alt="${noticia.titulo}" class="detail-image">` : ''}
@@ -200,6 +235,7 @@
 
         // Event listeners
         document.getElementById('categoriaFilter').addEventListener('change', loadNoticias);
+        document.getElementById('querySearch').addEventListener('input', renderFeed);
 
         // Close detail on escape
         document.addEventListener('keydown', (e) => {

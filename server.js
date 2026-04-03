@@ -1,4 +1,10 @@
 require('dotenv').config();
+console.log('SERVER START - env probe:');
+console.log('  SUPABASE_URL=', process.env.SUPABASE_URL);
+console.log('  SUPABASE_SERVICE_ROLE_KEY=', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+console.log('  MONGODB_URI=', !!process.env.MONGODB_URI);
+console.log('  GOOGLE_CLIENT_ID=', !!process.env.GOOGLE_CLIENT_ID);
+console.log('  GOOGLE_CLIENT_SECRET=', !!process.env.GOOGLE_CLIENT_SECRET);
 const express = require('express');
 const mongoose = require('mongoose');
 const { createClient } = require('@supabase/supabase-js');

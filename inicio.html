@@ -16,8 +16,8 @@
             height: 100%;
             background: #0e2b18;
             color: #fff;
-            transform: translateX(100%);
-            transition: transform 0.25s ease;
+            transform: translateX(calc(100% - 64px));
+            transition: transform 0.2s ease;
             z-index: 2500;
             box-shadow: -5px 0 20px rgba(0,0,0,0.3);
             padding: 20px;
@@ -76,12 +76,9 @@
             <span><i class="fa-solid fa-clock"></i> Proyecto de monitoreo urbano</span>
             <span><i class="fa-solid fa-location-dot"></i> Distrito de Juan Guerra</span>
         </div>
-        <div class="top-bar-right">
+        <div class="top-bar-right" id="session-area">
             <a href="#"><i class="fa-solid fa-file-shield"></i> Portal de Transparencia</a>
             <a href="#"><i class="fa-solid fa-scale-balanced"></i> Normativa RNE</a>
-            <button class="profile-btn" onclick="toggleProfileDrawer(true)">
-                <i class="fa-solid fa-user"></i> Perfil
-            </button>
         </div>
     </div>
 
@@ -396,19 +393,19 @@
         function updateProfileDrawer() {
             const statusEl = document.getElementById('profile-status-right');
             const actionsEl = document.getElementById('profile-actions-right');
-            const profileBtn = document.querySelector('.profile-btn');
+            const sessionArea = document.getElementById('session-area');
 
             if (!session) {
                 statusEl.innerHTML = '<p><strong>Sesión no iniciada</strong><br>Inicia sesión para usar todas las funcionalidades.</p>';
                 actionsEl.innerHTML = '<button class="action-btn login" onclick="window.location.href=\'/auth/google\';">Iniciar sesión con Google</button>';
-                if (profileBtn) profileBtn.textContent = 'Iniciar sesión';
+                if (sessionArea) sessionArea.innerHTML = '<a class="profile-btn" href="/auth/google"><i class="fa-solid fa-user"></i> Iniciar sesión</a>';
             } else {
                 const name = session.nombre || 'Usuario';
                 const role = session.rol || 'usuario';
                 statusEl.innerHTML = `<p><strong>${name}</strong></p><p>${session.email || ''}</p><span class="role-tag">Rol: ${role}</span>`;
                 let extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
                 actionsEl.innerHTML = `${extra}<button class="action-btn logout" onclick="logout();">Cerrar sesión</button>`;
-                if (profileBtn) profileBtn.textContent = 'Perfil';
+                if (sessionArea) sessionArea.innerHTML = '<div class="profile-btn" style="cursor: default;"><i class="fa-solid fa-user"></i> Perfil</div>';
             }
         }
 
@@ -430,15 +427,17 @@
         }
 
         function setupHoverDrawer() {
-            const btn = document.querySelector('.profile-btn');
+            const sessionArea = document.getElementById('session-area');
             const drawer = document.getElementById('profile-drawer-right');
-            if (!btn || !drawer) return;
-            btn.addEventListener('mouseenter', () => drawer.classList.add('open'));
-            btn.addEventListener('mouseleave', () => setTimeout(() => {
-                if (!drawer.matches(':hover')) drawer.classList.remove('open');
-            }, 100));
-            drawer.addEventListener('mouseleave', () => drawer.classList.remove('open'));
-            drawer.addEventListener('mouseenter', () => drawer.classList.add('open'));
+            if (!sessionArea || !drawer) return;
+
+            const openDrawer = () => drawer.classList.add('open');
+            const closeDrawer = () => !drawer.matches(':hover') && drawer.classList.remove('open');
+
+            sessionArea.addEventListener('mouseenter', openDrawer);
+            sessionArea.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+            drawer.addEventListener('mouseenter', openDrawer);
+            drawer.addEventListener('mouseleave', closeDrawer);
         }
 
         function initAuth() {

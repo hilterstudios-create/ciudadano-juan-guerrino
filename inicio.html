@@ -396,16 +396,19 @@
         function updateProfileDrawer() {
             const statusEl = document.getElementById('profile-status-right');
             const actionsEl = document.getElementById('profile-actions-right');
+            const profileBtn = document.querySelector('.profile-btn');
 
             if (!session) {
                 statusEl.innerHTML = '<p><strong>Sesión no iniciada</strong><br>Inicia sesión para usar todas las funcionalidades.</p>';
                 actionsEl.innerHTML = '<button class="action-btn login" onclick="window.location.href=\'/auth/google\';">Iniciar sesión con Google</button>';
+                if (profileBtn) profileBtn.textContent = 'Iniciar sesión';
             } else {
                 const name = session.nombre || 'Usuario';
                 const role = session.rol || 'usuario';
                 statusEl.innerHTML = `<p><strong>${name}</strong></p><p>${session.email || ''}</p><span class="role-tag">Rol: ${role}</span>`;
                 let extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
                 actionsEl.innerHTML = `${extra}<button class="action-btn logout" onclick="logout();">Cerrar sesión</button>`;
+                if (profileBtn) profileBtn.textContent = 'Perfil';
             }
         }
 
@@ -424,6 +427,18 @@
                 session = JSON.parse(user);
             }
             updateProfileDrawer();
+        }
+
+        function setupHoverDrawer() {
+            const btn = document.querySelector('.profile-btn');
+            const drawer = document.getElementById('profile-drawer-right');
+            if (!btn || !drawer) return;
+            btn.addEventListener('mouseenter', () => drawer.classList.add('open'));
+            btn.addEventListener('mouseleave', () => setTimeout(() => {
+                if (!drawer.matches(':hover')) drawer.classList.remove('open');
+            }, 100));
+            drawer.addEventListener('mouseleave', () => drawer.classList.remove('open'));
+            drawer.addEventListener('mouseenter', () => drawer.classList.add('open'));
         }
 
         function initAuth() {
@@ -447,6 +462,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             initAuth();
             loadSession();
+            setupHoverDrawer();
         });
     </script>
 

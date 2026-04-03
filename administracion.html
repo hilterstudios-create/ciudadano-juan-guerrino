@@ -164,6 +164,7 @@
         let user = JSON.parse(localStorage.getItem('oc_user') || '{}');
         let currentNews = null;
         let blocks = [];
+        let currentUploadBlockIndex = null;
 
         // Auth check
         const authStatus = document.createElement('div');
@@ -178,17 +179,77 @@
             `;
         }
 
-        if (!token) {
+        (async function initAdmin() {
             document.body.prepend(authStatus);
-            showAuthStatus('No estás autenticado. Debes iniciar sesión con Google para ingresar.');
-        } else if (!['superadmin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
-            document.body.prepend(authStatus);
-            showAuthStatus('Rol insuficiente para acceso administrativo.');
-        } else {
-            document.body.prepend(authStatus);
-            document.getElementById('userInfo').textContent = `Usuario: ${user.nombre || 'Admin'} (${user.rol || 'usuario'})`;
-            loadNews();
-        }
+
+            if (!token) {
+                showAuthStatus('No estás autenticado. Debes iniciar sesión con Google para ingresar.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) {
+                    showAuthStatus('Token inválido. Vuelve a iniciar sesión.');
+                    return;
+                }
+
+                const data = await response.json();
+                user = data.usuario || user;
+                localStorage.setItem('oc_user', JSON.stringify(user));
+
+                if (!['superadmin', 'admin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
+                    showAuthStatus('Rol insuficiente para acceso administrativo.');
+                    return;
+                }
+
+                document.getElementById('userInfo').textContent = `Usuario: ${user.nombre || 'Admin'} (${user.rol || 'usuario'})`;
+                loadNews();
+            } catch (err) {
+                showAuthStatus('Error de conexión al validar sesión.');
+                console.error(err);
+            }
+        })();
+
+        const uploadInput = document.createElement('input');
+        uploadInput.type = 'file';
+        uploadInput.accept = 'image/*';
+        uploadInput.style.display = 'none';
+        uploadInput.id = 'uploadImageInput';
+        document.body.appendChild(uploadInput);
+
+        uploadInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file || !currentUploadBlockIndex) return;
+            const fd = new FormData();
+            fd.append('archivos', file);
+            fd.append('carpeta', 'noticias');
+
+            document.getElementById('newsList').innerHTML = '<div class="loading">Subiendo imagen...</div>';
+            try {
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: fd
+                });
+                const data = await res.json();
+                if (res.ok && data.urls && data.urls.length) {
+                    blocks[currentUploadBlockIndex].contenido = data.urls[0];
+                    renderBlocks();
+                } else {
+                    alert('Error al subir imagen: ' + (data.error || 'sin detalle'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error de conexión al subir imagen');
+            } finally {
+                uploadInput.value = '';
+                currentUploadBlockIndex = null;
+                loadNews();
+            }
+        });
 
         // Menu navigation
         document.querySelectorAll('.menu-link').forEach(link => {
@@ -295,8 +356,10 @@
                     return `<textarea class="form-control" placeholder="Contenido del texto" onchange="updateBlock(${index}, 'contenido', this.value)">${block.contenido}</textarea>`;
                 case 'imagen':
                     return `
-                        <input type="url" class="form-control" placeholder="URL de la imagen" onchange="updateBlock(${index}, 'contenido', this.value)" value="${block.contenido}">
+                        <input type="url" class="form-control" placeholder="URL de la imagen (o use subir archivo)" onchange="updateBlock(${index}, 'contenido', this.value)" value="${block.contenido}">
                         <input type="text" class="form-control" placeholder="Texto alternativo" onchange="updateBlock(${index}, 'alt', this.value)" value="${block.alt}">
+                        <button type="button" class="btn btn-secondary" style="margin-top:8px;" onclick="triggerUploadForBlock(${index})">Subir imagen desde archivo</button>
+                        ${block.contenido ? `<div style="margin-top:8px;"><img src="${block.contenido}" style="max-width:100%; border-radius:4px;" alt="preview"></div>` : ''}
                     `;
                 case 'link':
                     return `
@@ -391,7 +454,11 @@
                 console.error('Error:', error);
             }
         }
-
+        function triggerUploadForBlock(index) {
+            currentUploadBlockIndex = index;
+            const uploadInput = document.getElementById('uploadImageInput');
+            if (uploadInput) uploadInput.click();
+        }
         function logout() {
             localStorage.removeItem('oc_token');
             localStorage.removeItem('oc_user');

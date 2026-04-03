@@ -5,26 +5,384 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Administración - Observatorio Ciudadano</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .main-header { background: linear-gradient(135deg, #37474f, #263238); }
-        .btn-submit { background: #37474f; border-color: #37474f; }
-        .btn-submit:hover { background: #263238; }
+        .admin-container { display: flex; min-height: calc(100vh - 120px); }
+        .sidebar { width: 250px; background: #f5f5f5; padding: 20px; border-right: 1px solid #ddd; }
+        .sidebar h3 { margin-top: 0; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar li { margin-bottom: 10px; }
+        .sidebar a { text-decoration: none; color: #333; display: block; padding: 8px; border-radius: 4px; }
+        .sidebar a:hover, .sidebar a.active { background: #37474f; color: white; }
+        .main-content { flex: 1; padding: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .news-list { display: flex; flex-direction: column; gap: 15px; }
+        .news-item { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-left: 4px solid #37474f; }
+        .news-item.destacada { border-left-color: #f57c00; }
+        .news-item.borrador { border-left-color: #ccc; }
+        .news-actions { margin-top: 10px; }
+        .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px; }
+        .btn-primary { background: #37474f; color: white; }
+        .btn-secondary { background: #f57c00; color: white; }
+        .btn-danger { background: #d32f2f; color: white; }
+        .editor-container { max-width: 800px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .blocks-container { border: 1px solid #ddd; min-height: 300px; padding: 15px; border-radius: 4px; }
+        .block { background: #f9f9f9; padding: 10px; margin-bottom: 10px; border-radius: 4px; position: relative; }
+        .block-controls { position: absolute; top: 5px; right: 5px; }
+        .block-type { font-weight: 600; margin-bottom: 5px; }
+        .add-block { margin-top: 10px; }
+        .preview { background: white; padding: 15px; border: 1px solid #eee; border-radius: 4px; margin-top: 20px; }
+        .status-badge { padding: 2px 6px; border-radius: 3px; font-size: 12px; }
+        .status-publicado { background: #4caf50; color: white; }
+        .status-borrador { background: #ff9800; color: white; }
+        .status-archivado { background: #9e9e9e; color: white; }
+        .loading { text-align: center; padding: 40px; }
+        .error { color: #d32f2f; padding: 10px; background: #ffebee; border-radius: 4px; }
     </style>
 </head>
 <body>
     <header class="main-header">
-        <h1>Administración</h1>
-        <p>Área de gestión interna (acceso restringido).</p>
-        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+        <h1>Panel de Administración</h1>
+        <p id="userInfo">Cargando...</p>
+        <a href="inicio.html" class="btn-submit" onclick="logout()">Cerrar Sesión</a>
     </header>
-    <main class="content">
-        <ul>
-            <li>Subir resoluciones verificadas</li>
-            <li>Moderar contenido</li>
-            <li>Validar evidencia</li>
-            <li>Cambiar estados de casos</li>
-        </ul>
-        <button class="btn-submit" onclick="alert('Acceso a administración (simulado)')">Ingresar panel</button>
-    </main>
+
+    <div class="admin-container">
+        <aside class="sidebar">
+            <h3>Menú</h3>
+            <ul>
+                <li><a href="#noticias" class="menu-link active" data-section="noticias">Gestión de Noticias</a></li>
+                <li><a href="#casos" class="menu-link" data-section="casos">Casos Reportados</a></li>
+                <li><a href="#denuncias" class="menu-link" data-section="denuncias">Denuncias</a></li>
+                <li><a href="#guias" class="menu-link" data-section="guias">Guías Técnicas</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <!-- Gestión de Noticias -->
+            <section id="noticias" class="section active">
+                <h2>Gestión de Noticias y Alertas</h2>
+                <button class="btn btn-primary" onclick="showEditor()">Nueva Noticia</button>
+                <div id="newsList" class="news-list">
+                    <div class="loading">Cargando noticias...</div>
+                </div>
+            </section>
+
+            <!-- Editor de Noticias -->
+            <div id="editor" class="editor-container" style="display: none;">
+                <h3 id="editorTitle">Crear Nueva Noticia</h3>
+                <form id="newsForm">
+                    <div class="form-group">
+                        <label>Título</label>
+                        <input type="text" class="form-control" id="titulo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Resumen corto</label>
+                        <textarea class="form-control" id="resumen" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Imagen principal (URL)</label>
+                        <input type="url" class="form-control" id="imagenPrincipal">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select class="form-control" id="categoria">
+                            <option value="seguridad">Seguridad</option>
+                            <option value="infraestructura">Infraestructura</option>
+                            <option value="medioambiente">Medio Ambiente</option>
+                            <option value="gobierno">Gobierno</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags (separados por coma)</label>
+                        <input type="text" class="form-control" id="tags" placeholder="seguridad, zona norte, etc.">
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad</label>
+                        <select class="form-control" id="prioridad">
+                            <option value="normal">Normal</option>
+                            <option value="destacada">Destacada</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select class="form-control" id="estado">
+                            <option value="borrador">Borrador</option>
+                            <option value="revision">En Revisión</option>
+                            <option value="publicado">Publicado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de publicación</label>
+                        <input type="datetime-local" class="form-control" id="fechaPublicacion">
+                    </div>
+                    <div class="form-group">
+                        <label>Contenido (bloques)</label>
+                        <div id="blocksContainer" class="blocks-container"></div>
+                        <div class="add-block">
+                            <button type="button" class="btn btn-secondary" onclick="addBlock('texto')">+ Texto</button>
+                            <button type="button" class="btn btn-secondary" onclick="addBlock('imagen')">+ Imagen</button>
+                            <button type="button" class="btn btn-secondary" onclick="addBlock('link')">+ Link</button>
+                            <button type="button" class="btn btn-secondary" onclick="addBlock('separador')">+ Separador</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn" onclick="hideEditor()">Cancelar</button>
+                    </div>
+                </form>
+                <div id="preview" class="preview" style="display: none;">
+                    <h4>Vista Previa</h4>
+                    <div id="previewContent"></div>
+                </div>
+            </div>
+
+            <!-- Otras secciones (placeholder) -->
+            <section id="casos" class="section">
+                <h2>Casos Reportados</h2>
+                <p>Funcionalidad próximamente...</p>
+            </section>
+            <section id="denuncias" class="section">
+                <h2>Denuncias</h2>
+                <p>Funcionalidad próximamente...</p>
+            </section>
+            <section id="guias" class="section">
+                <h2>Guías Técnicas</h2>
+                <p>Funcionalidad próximamente...</p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('oc_token');
+        let user = JSON.parse(localStorage.getItem('oc_user') || '{}');
+        let currentNews = null;
+        let blocks = [];
+
+        // Auth check
+        if (!token || !['superadmin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
+            window.location.href = 'index.html';
+        }
+
+        // UI
+        document.getElementById('userInfo').textContent = `Usuario: ${user.nombre || 'Admin'} (${user.rol || 'usuario'})`;
+
+        // Menu navigation
+        document.querySelectorAll('.menu-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const section = e.target.dataset.section;
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+                e.target.classList.add('active');
+            });
+        });
+
+        // Load news
+        async function loadNews() {
+            try {
+                const response = await fetch('/api/noticias/admin', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const news = await response.json();
+                    renderNewsList(news);
+                } else {
+                    document.getElementById('newsList').innerHTML = '<div class="error">Error al cargar noticias</div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('newsList').innerHTML = '<div class="error">Error de conexión</div>';
+            }
+        }
+
+        function renderNewsList(news) {
+            const container = document.getElementById('newsList');
+            if (news.length === 0) {
+                container.innerHTML = '<p>No hay noticias</p>';
+                return;
+            }
+            container.innerHTML = news.map(item => `
+                <div class="news-item ${item.prioridad === 'destacada' ? 'destacada' : ''} ${item.estado === 'borrador' ? 'borrador' : ''}">
+                    <h4>${item.titulo}</h4>
+                    <p>${item.resumen}</p>
+                    <div class="status-badge status-${item.estado}">${item.estado}</div>
+                    <div class="news-actions">
+                        <button class="btn btn-primary" onclick="editNews('${item._id}')">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteNews('${item._id}')">Archivar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showEditor(news = null) {
+            currentNews = news;
+            blocks = news ? [...news.contenido] : [];
+            document.getElementById('editorTitle').textContent = news ? 'Editar Noticia' : 'Crear Nueva Noticia';
+            document.getElementById('newsForm').reset();
+            if (news) {
+                document.getElementById('titulo').value = news.titulo;
+                document.getElementById('resumen').value = news.resumen;
+                document.getElementById('imagenPrincipal').value = news.imagenPrincipal || '';
+                document.getElementById('categoria').value = news.categoria;
+                document.getElementById('tags').value = news.tags.join(', ');
+                document.getElementById('prioridad').value = news.prioridad;
+                document.getElementById('estado').value = news.estado;
+                if (news.fechaPublicacion) {
+                    document.getElementById('fechaPublicacion').value = new Date(news.fechaPublicacion).toISOString().slice(0, 16);
+                }
+            }
+            renderBlocks();
+            document.getElementById('editor').style.display = 'block';
+            document.getElementById('noticias').style.display = 'none';
+        }
+
+        function hideEditor() {
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('noticias').style.display = 'block';
+            currentNews = null;
+            blocks = [];
+        }
+
+        function addBlock(type) {
+            const block = { tipo: type, contenido: '', alt: '', tituloLink: '' };
+            blocks.push(block);
+            renderBlocks();
+        }
+
+        function renderBlocks() {
+            const container = document.getElementById('blocksContainer');
+            container.innerHTML = blocks.map((block, index) => `
+                <div class="block">
+                    <div class="block-controls">
+                        <button type="button" onclick="moveBlock(${index}, -1)">↑</button>
+                        <button type="button" onclick="moveBlock(${index}, 1)">↓</button>
+                        <button type="button" onclick="removeBlock(${index})">×</button>
+                    </div>
+                    <div class="block-type">${block.tipo.toUpperCase()}</div>
+                    ${getBlockEditor(block, index)}
+                </div>
+            `).join('');
+        }
+
+        function getBlockEditor(block, index) {
+            switch(block.tipo) {
+                case 'texto':
+                    return `<textarea class="form-control" placeholder="Contenido del texto" onchange="updateBlock(${index}, 'contenido', this.value)">${block.contenido}</textarea>`;
+                case 'imagen':
+                    return `
+                        <input type="url" class="form-control" placeholder="URL de la imagen" onchange="updateBlock(${index}, 'contenido', this.value)" value="${block.contenido}">
+                        <input type="text" class="form-control" placeholder="Texto alternativo" onchange="updateBlock(${index}, 'alt', this.value)" value="${block.alt}">
+                    `;
+                case 'link':
+                    return `
+                        <input type="url" class="form-control" placeholder="URL del link" onchange="updateBlock(${index}, 'contenido', this.value)" value="${block.contenido}">
+                        <input type="text" class="form-control" placeholder="Título del link" onchange="updateBlock(${index}, 'tituloLink', this.value)" value="${block.tituloLink}">
+                    `;
+                case 'separador':
+                    return '<p>Separador visual</p>';
+                default:
+                    return '';
+            }
+        }
+
+        function updateBlock(index, field, value) {
+            blocks[index][field] = value;
+        }
+
+        function moveBlock(index, direction) {
+            const newIndex = index + direction;
+            if (newIndex >= 0 && newIndex < blocks.length) {
+                [blocks[index], blocks[newIndex]] = [blocks[newIndex], blocks[index]];
+                renderBlocks();
+            }
+        }
+
+        function removeBlock(index) {
+            blocks.splice(index, 1);
+            renderBlocks();
+        }
+
+        // Form submission
+        document.getElementById('newsForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = {
+                titulo: document.getElementById('titulo').value,
+                resumen: document.getElementById('resumen').value,
+                imagenPrincipal: document.getElementById('imagenPrincipal').value,
+                categoria: document.getElementById('categoria').value,
+                tags: document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t),
+                prioridad: document.getElementById('prioridad').value,
+                estado: document.getElementById('estado').value,
+                fechaPublicacion: document.getElementById('fechaPublicacion').value || null,
+                contenido: blocks
+            };
+
+            try {
+                const url = currentNews ? `/api/noticias/${currentNews._id}` : '/api/noticias';
+                const method = currentNews ? 'PUT' : 'POST';
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    hideEditor();
+                    loadNews();
+                } else {
+                    alert('Error al guardar la noticia');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        });
+
+        async function editNews(id) {
+            try {
+                const response = await fetch(`/api/noticias/admin`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const news = await response.json();
+                const item = news.find(n => n._id === id);
+                if (item) showEditor(item);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteNews(id) {
+            if (!confirm('¿Archivar esta noticia?')) return;
+            try {
+                const response = await fetch(`/api/noticias/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) loadNews();
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('oc_token');
+            localStorage.removeItem('oc_user');
+            window.location.href = 'index.html';
+        }
+
+        // Load initial data
+        loadNews();
+    </script>
 </body>
 </html>

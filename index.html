@@ -39,7 +39,7 @@
             height: 100%;
             background: #0e2b18;
             color: #fff;
-            transform: translateX(calc(-100% + 60px));
+            transform: translateX(calc(-100% + 24px));
             transition: transform 0.2s ease;
             z-index: 2500;
             box-shadow: 5px 0 20px rgba(0,0,0,0.25);
@@ -48,6 +48,37 @@
             padding: 20px;
         }
         .profile-drawer.open { transform: translateX(0); }
+
+        .profile-handle {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 90px;
+            background: #1d6f2a;
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2601;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .profile-handle i {
+            color: #fff;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-handle.open i {
+            transform: rotate(180deg);
+        }
+
+        .profile-handle.hidden {
+            display: none;
+        }
         .profile-drawer h3 { font-size: 1.1rem; margin-bottom: 12px; }
         .profile-drawer .drawer-close {
             position: absolute;
@@ -105,6 +136,9 @@
         <h3>Perfil</h3>
         <div id="profile-status"></div>
         <div id="profile-actions"></div>
+    </div>
+    <div id="profile-handle" class="profile-handle" title="Abrir perfil">
+        <i class="fa-solid fa-chevron-right"></i>
     </div>
 
     <!-- TOP STRIP -->
@@ -362,38 +396,46 @@
             if (token && user) {
                 session = JSON.parse(user);
             }
-            renderSessionArea();
             updateProfileDrawer();
+            renderProfileHandle();
+        }
+
+        function renderProfileHandle() {
+            const handle = document.getElementById('profile-handle');
+            if (!handle) return;
+            handle.classList.toggle('hidden', false); // siempre visible para abrir drawer
+            handle.title = session ? 'Panel de usuario' : 'Iniciar sesión / Ver panel';
         }
 
         function setupHoverDrawer() {
-            const sessionArea = document.getElementById('session-area');
+            const handle = document.getElementById('profile-handle');
             const drawer = document.getElementById('profile-drawer');
-            if (!sessionArea || !drawer) return;
+            if (!handle || !drawer) return;
 
-            const openDrawer = () => drawer.classList.add('open');
-            const closeDrawer = () => !drawer.matches(':hover') && drawer.classList.remove('open');
+            const openDrawer = () => {
+                drawer.classList.add('open');
+                handle.classList.add('open');
+            };
+            const closeDrawer = () => {
+                if (!drawer.matches(':hover') && !handle.matches(':hover')) {
+                    drawer.classList.remove('open');
+                    handle.classList.remove('open');
+                }
+            };
 
-            sessionArea.addEventListener('mouseenter', openDrawer);
-            sessionArea.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+            handle.addEventListener('click', () => {
+                if (drawer.classList.contains('open')) {
+                    drawer.classList.remove('open');
+                    handle.classList.remove('open');
+                } else {
+                    openDrawer();
+                }
+            });
+            handle.addEventListener('mouseenter', openDrawer);
+            handle.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+
             drawer.addEventListener('mouseenter', openDrawer);
-            drawer.addEventListener('mouseleave', closeDrawer);
-        }
-
-        function renderSessionArea() {
-            const area = document.getElementById('session-area');
-
-            if (session) {
-                area.innerHTML = `
-                    <div class="google-login-btn" style="cursor:default;">
-                        <i class="fa-solid fa-user"></i> ${session.nombre}
-                    </div>`;
-            } else {
-                area.innerHTML = `<button class="google-login-btn" onclick="window.location.href='/auth/google';">
-                    <i class="fa-solid fa-user"></i> Iniciar sesión
-                </button>`;
-            }
-            updateProfileDrawer();
+            drawer.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
         }
 
         function hacerLoginGoogle() {
@@ -404,7 +446,8 @@
             localStorage.removeItem('oc_token');
             localStorage.removeItem('oc_user');
             session = null;
-            renderSessionArea();
+            updateProfileDrawer();
+            renderProfileHandle();
             toggleProfileDrawer(false);
         }
 
@@ -421,7 +464,8 @@
             .then(data => {
                 localStorage.setItem('oc_user', JSON.stringify(data.usuario));
                 session = data.usuario;
-                renderSessionArea();
+                updateProfileDrawer();
+                renderProfileHandle();
                 window.history.replaceState({}, '', '/');
             });
         }

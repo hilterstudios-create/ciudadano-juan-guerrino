@@ -166,12 +166,29 @@
         let blocks = [];
 
         // Auth check
-        if (!token || !['superadmin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
-            window.location.href = 'index.html';
+        const authStatus = document.createElement('div');
+        authStatus.id = 'authStatus';
+        authStatus.style.margin = '16px 0 0 20px';
+
+        function showAuthStatus(message, isError = true) {
+            authStatus.innerHTML = `
+                <div class="error" style="display:block; margin-bottom: 15px;">
+                    ${message} <button class="btn btn-secondary" onclick="window.location.href='index.html'">Iniciar sesión</button>
+                </div>
+            `;
         }
 
-        // UI
-        document.getElementById('userInfo').textContent = `Usuario: ${user.nombre || 'Admin'} (${user.rol || 'usuario'})`;
+        if (!token) {
+            document.body.prepend(authStatus);
+            showAuthStatus('No estás autenticado. Debes iniciar sesión con Google para ingresar.');
+        } else if (!['superadmin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
+            document.body.prepend(authStatus);
+            showAuthStatus('Rol insuficiente para acceso administrativo.');
+        } else {
+            document.body.prepend(authStatus);
+            document.getElementById('userInfo').textContent = `Usuario: ${user.nombre || 'Admin'} (${user.rol || 'usuario'})`;
+            loadNews();
+        }
 
         // Menu navigation
         document.querySelectorAll('.menu-link').forEach(link => {
@@ -381,8 +398,10 @@
             window.location.href = 'index.html';
         }
 
-        // Load initial data
-        loadNews();
+        // Load initial data if se cumple auth
+        if (token && ['superadmin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
+            loadNews();
+        }
     </script>
 </body>
 </html>

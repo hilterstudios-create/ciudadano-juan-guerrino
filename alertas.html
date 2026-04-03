@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alertas - Observatorio Ciudadano</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .main-header { background: linear-gradient(135deg, #fbc02d, #f9a825); }
+        .btn-submit { background: #fbc02d; border-color: #fbc02d; }
+        .btn-submit:hover { background: #f9a825; }
+        .field-group label { color: #f57f17; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Alertas</h1>
+        <p>Notificaciones de casos por zona y estado.</p>
+        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    </header>
+    <main class="content">
+        <div class="field-group"><label>Suscripción por ubicación</label><input placeholder="Ej. Centro" /></div>
+        <button class="btn-submit" onclick="alert('Suscrito (simulado)')">Suscribirse</button>
+        <ul>
+            <li>Nuevos casos cercanos: 12</li>
+            <li>Cambios de estado: 7</li>
+            <li>Alertas por zona: Centro, Norte</li>
+        </ul>
+    </main>
+</body>
+</html>

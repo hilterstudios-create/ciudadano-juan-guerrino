@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Problemas - Observatorio Ciudadano</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .main-header { background: linear-gradient(135deg, #388e3c, #2e7d32); }
+        .btn-submit { background: #388e3c; border-color: #388e3c; }
+        .btn-submit:hover { background: #2e7d32; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Mapa de Problemas</h1>
+        <p>Mapa interactivo de incidencias</p>
+        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    </header>
+    <main class="content">
+        <div class="field-group">
+            <label>Capas</label>
+            <div><label><input type="checkbox" checked /> Drenaje</label></div>
+            <div><label><input type="checkbox" checked /> Veredas</label></div>
+            <div><label><input type="checkbox" checked /> Obras sin licencia</label></div>
+        </div>
+        <div style="height:320px;border:1px solid #a5c9e0;border-radius:8px;background:#eaf5ff;display:flex;align-items:center;justify-content:center;">
+            [Mapa interactivo simulado]
+        </div>
+        <p>Haga clic en un marcador para ver el caso.</p>
+    </main>
+</body>
+</html>

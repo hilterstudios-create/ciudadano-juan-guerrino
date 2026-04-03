@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generar Denuncia - Observatorio Ciudadano</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .main-header { background: linear-gradient(135deg, #f57c00, #e65100); }
+        .btn-submit { background: #f57c00; border-color: #f57c00; }
+        .btn-submit:hover { background: #e65100; }
+        .field-group label { color: #f57c00; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Generar Denuncia</h1>
+        <p>Formulario guiado para denuncias.</p>
+        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    </header>
+    <main class="content">
+        <div class="field-group"><label>Hechos</label><textarea rows="3" placeholder="Describa los hechos"></textarea></div>
+        <div class="field-group"><label>Ubicación</label><input placeholder="Dirección exacta" /></div>
+        <div class="field-group"><label>Daños</label><textarea rows="2" placeholder="Daños observados"></textarea></div>
+        <div class="field-group"><label>Base legal (automática)</label><input readonly value="RNE / Ordenanza municipal" /></div>
+        <div class="field-group"><label>Evidencia</label><input type="file" accept="image/*,video/*" multiple /></div>
+        <button class="btn-submit" onclick="alert('Denuncia generada (simulado)')">Generar PDF</button>
+    </main>
+</body>
+</html>

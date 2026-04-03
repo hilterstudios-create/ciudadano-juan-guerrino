@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guías Técnicas - Observatorio Ciudadano de Juan Guerra</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="icono.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        /* ── BIBLIOTECA DE GUÍAS ── */
+        .gt-hero {
+            background: linear-gradient(135deg, #1a3a1e 0%, #2e7d32 100%);
+            color: #fff;
+            padding: 36px 24px 32px;
+            text-align: center;
+        }
+        .gt-hero h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+        }
+        .gt-hero p {
+            font-size: 1rem;
+            color: rgba(255,255,255,0.8);
+            max-width: 560px;
+            margin: 0 auto 20px;
+        }
+        .gt-hero-badges {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .gt-badge {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* ── FILTROS ── */
+        .gt-filtros {
+            background: #fff;
+            border-bottom: 1px solid #dce5dc;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .gt-filtros span {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .gt-filtro-btn {
+            border: 1px solid #cde5d2;
+            background: #f5fbf5;
+            color: #1a5e28;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .gt-filtro-btn:hover,
+        .gt-filtro-btn.active {
+            background: #1d6f2a;
+            color: #fff;
+            border-color: #1d6f2a;
+        }
+
+        /* ── LAYOUT BIBLIOTECA ── */
+        .gt-layout {
+            max-width: 1260px;
+            margin: 24px auto;
+            padding: 0 24px 40px;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        /* ── SIDEBAR ÍNDICE ── */
+        .gt-sidebar {
+            background: #fff;
+            border: 1px solid #d0e4d0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: sticky;
+            top: 16px;
+        }
+        .gt-sidebar-title {
+            background: #1d6f2a;
+            color: #fff;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 10px 14px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gt-sidebar-menu { list-style: none; }
+        .gt-sidebar-menu li { border-bottom: 1px solid #e8f2e8; }
+        .gt-sidebar-menu li:last-child { border-bottom: none; }
+        .gt-sidebar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 10px 14px;
+            color: #1a5e28;
+            text-decoration: none;
+            font-size: 0.84rem;
+            font-weight: 600;
+            transition: background 0.12s;
+        }
+        .gt-sidebar-menu a i { width: 16px; text-align: center; font-size: 0.82rem; color: #2e8a3b; }
+        .gt-sidebar-menu a:hover { background: #eafbee; }
+        .gt-sidebar-menu a.active { background: #1d6f2a; color: #fff; }
+        .gt-sidebar-menu a.active i { color: #fff; }
+        .gt-sidebar-count {
+            margin-left: auto;
+            background: rgba(255,255,255,0.25);
+            font-size: 0.7rem;
+            padding: 1px 7px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        .gt-sidebar-menu a:not(.active) .gt-sidebar-count {
+            background: #e0f0e0;
+            color: #1a5e28;
+        }
+
+        /* ── PANEL DE CONTENIDO ── */
+
+        /* Encabezado de sección */
+        .gt-section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1d6f2a;
+        }
+        .gt-section-header h3 {
+            font-size: 1.1rem;
+            color: #1a5e28;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .gt-section-header h3 i { color: #2e8a3b; }
+        .gt-section-meta {
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        /* Grid de cards de guías */
+        .gt-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        /* Card de guía */
+        .gt-card {
+            background: #fff;
+            border: 1px solid #d5e8d5;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.15s, transform 0.15s;
+            cursor: pointer;
+        }
+        .gt-card:hover {
+            box-shadow: 0 4px 16px rgba(20,80,30,0.14);
+            transform: translateY(-2px);
+        }
+        .gt-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e8f2e8;
+        }
+        .gt-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .gt-card-icon i { font-size: 1.3rem; color: #fff; }
+        .gt-card-icon.verde   { background: #2e7d32; }
+        .gt-card-icon.azul    { background: #1565c0; }
+        .gt-card-icon.teal    { background: #00695c; }
+        .gt-card-icon.naranja { background: #e65100; }
+        .gt-card-icon.morado  { background: #6a1b9a; }
+        .gt-card-icon.gris    { background: #37474f; }
+
+        .gt-card-meta { flex: 1; }
+        .gt-card-norma {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+        .gt-card-titulo {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #1a3a20;
+            line-height: 1.3;
+            margin-top: 2px;
+        }
+
+        .gt-card-body {
+            padding: 12px 16px;
+            flex: 1;
+        }
+        .gt-card-desc {
+            font-size: 0.82rem;
+            color: #555;
+            line-height: 1.55;
+        }
+
+        .gt-card-footer {
+            padding: 10px 16px;
+            border-top: 1px solid #e8f2e8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .gt-card-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .gt-card-tag.vereda       { background: #e8f5e9; color: #2e7d32; }
+        .gt-card-tag.drenaje      { background: #e3f2fd; color: #1565c0; }
+        .gt-card-tag.licencia     { background: #fff3e0; color: #e65100; }
+        .gt-card-tag.accesibilidad{ background: #f3e5f5; color: #6a1b9a; }
+        .gt-card-tag.otro         { background: #eceff1; color: #37474f; }
+
+        .gt-card-link {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #1d6f2a;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .gt-card-link:hover { color: #155220; }
+
+        /* ── MODAL DETALLE ── */
+        .gt-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .gt-modal-overlay.open { display: flex; }
+        .gt-modal {
+            background: #fff;
+            border-radius: 6px;
+            max-width: 680px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+        }
+        .gt-modal-top {
+            background: #1d6f2a;
+            color: #fff;
+            padding: 20px 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+        .gt-modal-top-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .gt-modal-top-icon i { font-size: 1.6rem; color: #fff; }
+        .gt-modal-top-text h2 { font-size: 1.3rem; font-weight: 900; line-height: 1.2; }
+        .gt-modal-top-text p  { font-size: 0.8rem; color: rgba(255,255,255,0.75); margin-top: 4px; }
+        .gt-modal-body { padding: 24px; }
+        .gt-modal-body h4 {
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #1d6f2a;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin: 18px 0 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e0f0e0;
+        }
+        .gt-modal-body h4:first-child { margin-top: 0; }
+        .gt-modal-body p {
+            font-size: 0.9rem;
+            color: #444;
+            line-height: 1.65;
+        }
+        .gt-modal-body ul {
+            margin: 8px 0 0 18px;
+            font-size: 0.88rem;
+            color: #444;
+            line-height: 1.7;
+        }
+        .gt-modal-norma-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            color: #1b5e20;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 5px 14px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+        }
+        .gt-modal-actions {
+            padding: 16px 24px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .gt-modal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 9px 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            border-radius: 3px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+        .gt-modal-btn.primary {
+            background: #1d6f2a;
+            color: #fff;
+        }
+        .gt-modal-btn.primary:hover { background: #155220; }
+        .gt-modal-btn.secondary {
+            background: #fff;
+            color: #555;
+            border: 1px solid #ccc;
+        }
+        .gt-modal-btn.secondary:hover { background: #f5f5f5; }
+
+        /* ── AVISO ADMIN ── */
+        .gt-admin-bar {
+            display: none; /* se muestra con JS si es admin */
+            background: #7b1c1c;
+            color: #fff;
+            padding: 10px 24px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            align-items: center;
+            gap: 10px;
+        }
+        .gt-admin-bar.visible { display: flex; }
+        .gt-admin-bar a {
+            color: #ffcdd2;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .gt-admin-add-btn {
+            margin-left: auto;
+            background: #fff;
+            color: #7b1c1c;
+            border: none;
+            padding: 6px 16px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* ── EMPTY STATE ── */
+        .gt-empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: #aaa;
+        }
+        .gt-empty i { font-size: 3rem; margin-bottom: 14px; display: block; }
+        .gt-empty p { font-size: 0.9rem; }
+
+        /* ── LOGIN MODAL ── */
+        .login-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .login-overlay.open { display: flex; }
+        .login-box {
+            background: #fff;
+            border-radius: 6px;
+            width: 100%;
+            max-width: 400px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        }
+        .login-box-top {
+            background: #1d6f2a;
+            color: #fff;
+            padding: 20px 24px;
+            text-align: center;
+        }
+        .login-box-top i { font-size: 2rem; margin-bottom: 8px; display: block; }
+        .login-box-top h3 { font-size: 1.2rem; font-weight: 900; }
+        .login-box-top p  { font-size: 0.8rem; color: rgba(255,255,255,0.75); margin-top: 4px; }
+        .login-form { padding: 24px; }
+        .login-field { margin-bottom: 16px; }
+        .login-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 5px;
+        }
+        .login-field input {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 9px 12px;
+            font-size: 0.88rem;
+            outline: none;
+            color: #222;
+            transition: border-color 0.15s;
+        }
+        .login-field input:focus { border-color: #1d6f2a; }
+        .login-submit {
+            width: 100%;
+            background: #1d6f2a;
+            color: #fff;
+            border: none;
+            padding: 11px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .login-submit:hover { background: #155220; }
+        .login-google {
+            width: 100%;
+            background: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 11px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .login-google:hover { background: #f5f5f5; }
+        .login-error {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #b71c1c;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            border-radius: 3px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .login-error.visible { display: block; }
+        .login-footer {
+            padding: 12px 24px;
+            border-top: 1px solid #eee;
+            text-align: center;
+            font-size: 0.78rem;
+            color: #888;
+        }
+        .login-footer button {
+            background: none;
+            border: none;
+            color: #1d6f2a;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.78rem;
+        }
+
+        .user-notification {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1d6f2a;
+            color: #fff;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+        .user-notification i { margin-right: 8px; }
+
+        /* ── BOTÓN LOGIN EN HEADER ── */
+        .un-login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: transparent;
+            color: #1d6f2a;
+            border: 1.5px solid #1d6f2a;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+        }
+        .un-login-btn:hover { background: #1d6f2a; color: #fff; }
+        .un-login-btn.logged {
+            background: #e8f5e9;
+            border-color: #a5d6a7;
+            color: #1b5e20;
+            cursor: default;
+        }
+        .un-logout-btn {
+            background: none;
+            border: none;
+            color: #b71c1c;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 8px;
+            text-decoration: underline;
+        }
+        .session-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #444;
+        }
+        .session-info .rol-badge {
+            background: #1d6f2a;
+            color: #fff;
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        .session-info .rol-badge.admin { background: #7b1c1c; }
+
+        @media (max-width: 860px) {
+            .gt-layout { grid-template-columns: 1fr; }
+            .gt-sidebar { position: static; }
+        }
+        @media (max-width: 600px) {
+            .gt-grid { grid-template-columns: 1fr; }
+            .gt-hero h2 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STRIP -->
+    <div class="un-topstrip">
+        <span>
+            <i class="fa-solid fa-house"></i>
+            Bienvenidos al Observatorio Ciudadano de Juan Guerra
+        </span>
+        <span class="disclaimer-pill">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            Iniciativa ciudadana independiente · No es un sitio oficial
+        </span>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="un-header">
+        <div class="un-header-inner">
+            <a href="index.html" class="un-brand">
+                <img src="icono.png" alt="Observatorio Ciudadano" class="un-logo" />
+                <div class="un-brand-text">
+                    <h1>
+                        <span>Observatorio</span>
+                        <span>Ciudadano</span>
+                    </h1>
+                </div>
+            </a>
+            <div class="un-divider"></div>
+            <p class="un-tagline">
+                Registro, evidencia y seguimiento<br>de incidencias urbanas en Juan Guerra
+            </p>
+            <div class="un-header-actions">
+                <!-- Sesión -->
+                <div id="session-area">
+                    <button class="un-login-btn" onclick="window.location.href='index.html'">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Iniciar sesión
+                    </button>
+                </div>
+                <div class="un-search-row">
+                    <input type="text" placeholder="Buscar guía técnica..." id="buscador" oninput="filtrarGuias()" />
+                    <button type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- DARK NAV BAR -->
+    <nav class="un-nav">
+        <div class="un-nav-inner">
+            <a href="index.html">El Observatorio <i class="fa-solid fa-chevron-down"></i></a>
+            <a href="inicio.html">Qué monitoreamos <i class="fa-solid fa-chevron-down"></i></a>
+            <a href="inicio.html">Casos y evidencia</a>
+            <a href="guias-tecnicas.html" class="active">Guías Técnicas</a>
+            <a href="inicio.html">Participa</a>
+        </div>
+    </nav>
+
+    <!-- ADMIN BAR -->
+    <div class="gt-admin-bar" id="admin-bar">
+        <i class="fa-solid fa-shield-halved"></i>
+        Modo Administrador activo — Puedes publicar y editar guías técnicas.
+        <button class="gt-admin-add-btn" onclick="abrirModalNuevaGuia()">
+            <i class="fa-solid fa-plus"></i> Nueva Guía
+        </button>
+    </div>
+
+    <!-- HERO -->
+    <div class="gt-hero">
+        <h2><i class="fa-solid fa-book-open" style="margin-right:10px;opacity:0.9"></i>Biblioteca de Normas Técnicas</h2>
+        <p>Consulta las normas del Reglamento Nacional de Edificaciones aplicables a Juan Guerra. Contenido publicado y verificado por el equipo del Observatorio.</p>
+        <div class="gt-hero-badges">
+            <span class="gt-badge"><i class="fa-solid fa-gavel" style="margin-right:5px"></i>RNE vigente</span>
+            <span class="gt-badge"><i class="fa-solid fa-universal-access" style="margin-right:5px"></i>Accesibilidad</span>
+            <span class="gt-badge"><i class="fa-solid fa-road" style="margin-right:5px"></i>Veredas y vías</span>
+            <span class="gt-badge"><i class="fa-solid fa-droplet" style="margin-right:5px"></i>Drenaje</span>
+        </div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="gt-filtros">
+        <span><i class="fa-solid fa-filter" style="margin-right:5px"></i>Filtrar:</span>
+        <button class="gt-filtro-btn active" onclick="setFiltro('todos', this)">Todos</button>
+        <button class="gt-filtro-btn" onclick="setFiltro('vereda', this)">Veredas</button>
+        <button class="gt-filtro-btn" onclick="setFiltro('drenaje', this)">Drenaje</button>
+        <button class="gt-filtro-btn" onclick="setFiltro('licencia', this)">Licencias</button>
+        <button class="gt-filtro-btn" onclick="setFiltro('accesibilidad', this)">Accesibilidad</button>
+        <button class="gt-filtro-btn" onclick="setFiltro('otro', this)">Otros</button>
+    </div>
+
+    <!-- LAYOUT BIBLIOTECA -->
+    <div class="gt-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="gt-sidebar">
+            <div class="gt-sidebar-title">
+                <i class="fa-solid fa-list"></i> Índice
+            </div>
+            <ul class="gt-sidebar-menu" id="sidebar-menu">
+                <li>
+                    <a href="#" class="active" onclick="setFiltro('todos', null); return false;">
+                        <i class="fa-solid fa-grip"></i> Todas las guías
+                        <span class="gt-sidebar-count" id="cnt-todos">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="setFiltro('vereda', null); return false;">
+                        <i class="fa-solid fa-road"></i> Veredas
+                        <span class="gt-sidebar-count" id="cnt-vereda">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="setFiltro('drenaje', null); return false;">
+                        <i class="fa-solid fa-droplet"></i> Drenaje
+                        <span class="gt-sidebar-count" id="cnt-drenaje">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="setFiltro('licencia', null); return false;">
+                        <i class="fa-solid fa-file-signature"></i> Licencias
+                        <span class="gt-sidebar-count" id="cnt-licencia">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="setFiltro('accesibilidad', null); return false;">
+                        <i class="fa-solid fa-universal-access"></i> Accesibilidad
+                        <span class="gt-sidebar-count" id="cnt-accesibilidad">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="setFiltro('otro', null); return false;">
+                        <i class="fa-solid fa-folder"></i> Otros
+                        <span class="gt-sidebar-count" id="cnt-otro">0</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- CONTENIDO -->
+        <main class="gt-content">
+            <div class="gt-section-header">
+                <h3 id="section-title"><i class="fa-solid fa-grip"></i> Todas las guías</h3>
+                <span class="gt-section-meta" id="section-meta">Cargando...</span>
+            </div>
+
+            <div class="gt-grid" id="guias-grid">
+                <!-- Cards inyectadas por JS -->
+            </div>
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="un-footer">
+        <i class="fa-solid fa-circle-info"></i>
+        <strong>Observatorio Ciudadano de Juan Guerra</strong> &nbsp;·&nbsp; 2026 &nbsp;·&nbsp;
+        Proyecto ciudadano no oficial &nbsp;·&nbsp; No representa a ninguna entidad gubernamental
+    </footer>
+
+    <!-- NOTIFICACIÓN DE USUARIO LOGUEADO -->
+    <div id="user-notification" class="user-notification" style="display:none;">
+        <i class="fa-solid fa-user"></i>
+        <span id="user-info">Usuario: <span id="user-email"></span></span>
+    </div>
+
+    <!-- MODAL DETALLE GUÍA -->
+    <div class="gt-modal-overlay" id="modal-detalle" onclick="cerrarModalSiOverlay(event)">
+        <div class="gt-modal">
+            <div class="gt-modal-top">
+                <div class="gt-modal-top-icon" id="modal-icono-box">
+                    <i class="fa-solid fa-book" id="modal-icono"></i>
+                </div>
+                <div class="gt-modal-top-text">
+                    <h2 id="modal-titulo">—</h2>
+                    <p id="modal-norma-top">—</p>
+                </div>
+            </div>
+            <div class="gt-modal-body" id="modal-body">
+                <!-- contenido dinámico -->
+            </div>
+            <div class="gt-modal-actions">
+                <a href="#" id="modal-enlace" target="_blank" class="gt-modal-btn primary" style="display:none">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Ver norma oficial
+                </a>
+                <button class="gt-modal-btn secondary" onclick="cerrarModal()">
+                    <i class="fa-solid fa-xmark"></i> Cerrar
+                </button>
+                <!-- botones admin -->
+                <div id="modal-admin-btns" style="display:none; gap:8px; display:none;">
+                    <button class="gt-modal-btn secondary" id="btn-editar-guia" onclick="editarGuia()">
+                        <i class="fa-solid fa-pen"></i> Editar
+                    </button>
+                    <button class="gt-modal-btn secondary" style="color:#b71c1c; border-color:#ef9a9a;" id="btn-eliminar-guia" onclick="eliminarGuia()">
+                        <i class="fa-solid fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ── CONFIG ───────────────────────────────────────────────
+        const API = ''; // vacío = misma origen, o pon 'http://localhost:3000'
+
+        // ── ESTADO ───────────────────────────────────────────────
+        let guiasData = [];
+        let filtroActivo = 'todos';
+        let guiaActivaId = null;
+        let session = null;
+
+        // ── INIT ─────────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarSesion();
+            cargarGuias();
+        });
+
+        // ── SESIÓN ───────────────────────────────────────────────
+        function cargarSesion() {
+            const token = localStorage.getItem('oc_token');
+            const user  = localStorage.getItem('oc_user');
+            if (token && user) {
+                session = JSON.parse(user);
+                renderSessionArea();
+            }
+        }
+
+        function renderSessionArea() {
+            const area = document.getElementById('session-area');
+            const notification = document.getElementById('user-notification');
+            const userEmail = document.getElementById('user-email');
+
+            if (session) {
+                area.innerHTML = `
+                    <div class="session-info">
+                        <i class="fa-solid fa-circle-user" style="font-size:1.3rem;color:#1d6f2a"></i>
+                        <span>${session.nombre}</span>
+                        <span class="rol-badge ${session.rol}">${session.rol}</span>
+                        <button class="un-logout-btn" onclick="cerrarSesion()">Salir</button>
+                    </div>`;
+                notification.style.display = 'block';
+                userEmail.textContent = session.email;
+                if (session.rol === 'admin') {
+                    document.getElementById('admin-bar').classList.add('visible');
+                }
+            } else {
+                area.innerHTML = `<button class="un-login-btn" onclick="window.location.href='index.html'">
+                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión</button>`;
+                notification.style.display = 'none';
+                document.getElementById('admin-bar').classList.remove('visible');
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('oc_token');
+            localStorage.removeItem('oc_user');
+            session = null;
+            renderSessionArea();
+        }
+
+        // ── CARGAR GUÍAS ─────────────────────────────────────────
+        async function cargarGuias() {
+            try {
+                const r = await fetch(`${API}/api/guias`);
+                guiasData = await r.json();
+            } catch {
+                // Si no hay servidor aún, muestra datos de ejemplo
+                guiasData = datosEjemplo();
+            }
+            actualizarContadores();
+            renderGuias();
+        }
+
+        function datosEjemplo() {
+            return [
+                {
+                    _id: '1', titulo: 'Dimensiones mínimas de veredas', categoria: 'vereda',
+                    norma: 'RNE GH.020 Art. 8',
+                    icono: 'fa-solid fa-road', color: 'verde',
+                    descripcion: 'Ancho mínimo libre de obstáculos, pendientes longitudinales y transversales permitidas.',
+                    contenido: `<h4>¿Qué establece la norma?</h4>
+                        <p>Según el RNE GH.020, las veredas deben tener un ancho mínimo libre de <strong>1.20 m</strong> en zonas residenciales y <strong>2.00 m</strong> en zonas comerciales.</p>
+                        <h4>Pendientes permitidas</h4>
+                        <ul>
+                            <li>Pendiente longitudinal máxima: <strong>12%</strong></li>
+                            <li>Pendiente transversal (bombeo): <strong>2% a 4%</strong> hacia la calzada</li>
+                        </ul>
+                        <h4>Superficie</h4>
+                        <p>Debe ser antideslizante, continua y sin resaltos mayores a 5mm entre piezas.</p>`,
+                    enlaceExterno: 'https://www.gob.pe/institucion/mvcs/informes-publicaciones/2406634-reglamento-nacional-de-edificaciones',
+                    publicado: true
+                },
+                {
+                    _id: '2', titulo: 'Rampas y accesibilidad universal', categoria: 'accesibilidad',
+                    norma: 'RNE A.120',
+                    icono: 'fa-solid fa-universal-access', color: 'morado',
+                    descripcion: 'Requisitos de rampas para personas con discapacidad en espacios públicos.',
+                    contenido: `<h4>Pendiente de rampas</h4>
+                        <p>La Norma A.120 establece pendientes máximas según longitud:</p>
+                        <ul>
+                            <li>Hasta 0.25 m de altura: pendiente máxima <strong>12%</strong></li>
+                            <li>Hasta 0.75 m de altura: pendiente máxima <strong>10%</strong></li>
+                            <li>Hasta 1.20 m de altura: pendiente máxima <strong>8%</strong></li>
+                        </ul>
+                        <h4>Ancho mínimo</h4>
+                        <p>El ancho libre mínimo de una rampa es de <strong>0.90 m</strong>.</p>
+                        <h4>Pasamanos</h4>
+                        <p>Obligatorio en ambos lados cuando supera los 3 m de longitud, a <strong>0.75 m y 0.90 m</strong> de altura.</p>`,
+                    enlaceExterno: '',
+                    publicado: true
+                },
+                {
+                    _id: '3', titulo: 'Sistemas de drenaje pluvial', categoria: 'drenaje',
+                    norma: 'RNE OS.060',
+                    icono: 'fa-solid fa-droplet', color: 'azul',
+                    descripcion: 'Diseño y mantenimiento de cunetas, sumideros y colectores pluviales en vías urbanas.',
+                    contenido: `<h4>Cunetas</h4>
+                        <p>Las cunetas deben diseñarse para evacuar el caudal de diseño con un período de retorno mínimo de <strong>10 años</strong> para vías locales.</p>
+                        <h4>Sumideros</h4>
+                        <p>Deben ubicarse en las esquinas y en tramos de más de 50 m entre sumideros consecutivos.</p>
+                        <h4>Mantenimiento</h4>
+                        <p>La municipalidad es responsable del mantenimiento periódico antes de la temporada de lluvias.</p>`,
+                    enlaceExterno: '',
+                    publicado: true
+                },
+                {
+                    _id: '4', titulo: '¿Cuándo se necesita licencia de construcción?', categoria: 'licencia',
+                    norma: 'Ley 29090 y modificatorias',
+                    icono: 'fa-solid fa-file-signature', color: 'naranja',
+                    descripcion: 'Tipos de licencia, modalidades y qué obras requieren autorización municipal.',
+                    contenido: `<h4>Modalidades de licencia</h4>
+                        <ul>
+                            <li><strong>Modalidad A:</strong> Obras menores — cercos hasta 3m, refacción sin cambios estructurales</li>
+                            <li><strong>Modalidad B:</strong> Construcciones de hasta 5 pisos y 3,000 m²</li>
+                            <li><strong>Modalidad C y D:</strong> Obras de mayor envergadura con evaluación por comisión</li>
+                        </ul>
+                        <h4>¿Qué pasa sin licencia?</h4>
+                        <p>La municipalidad puede ordenar la paralización de obra, demolición y aplicar multas según el TUPA.</p>`,
+                    enlaceExterno: '',
+                    publicado: true
+                },
+                {
+                    _id: '5', titulo: 'Ocupación de vía pública', categoria: 'vereda',
+                    norma: 'RNE GH.020 + Ordenanza Municipal',
+                    icono: 'fa-solid fa-ban', color: 'gris',
+                    descripcion: 'Qué está prohibido en veredas: comercio informal, materiales de construcción, vehículos.',
+                    contenido: `<h4>Prohibiciones en vereda</h4>
+                        <ul>
+                            <li>Depósito de materiales de construcción sin autorización temporal</li>
+                            <li>Estacionamiento de vehículos que obstruyan el paso peatonal</li>
+                            <li>Instalación de puestos comerciales sin licencia de uso de vía</li>
+                            <li>Desniveles o modificaciones sin autorización municipal</li>
+                        </ul>
+                        <h4>¿Cómo denunciar?</h4>
+                        <p>Puedes reportar el caso directamente en este Observatorio con fotos y ubicación exacta.</p>`,
+                    enlaceExterno: '',
+                    publicado: true
+                },
+                {
+                    _id: '6', titulo: 'Bermas y áreas verdes urbanas', categoria: 'otro',
+                    norma: 'RNE GH.020 Art. 12',
+                    icono: 'fa-solid fa-leaf', color: 'teal',
+                    descripcion: 'Normas sobre bermas centrales, laterales y mantenimiento de áreas verdes en vías.',
+                    contenido: `<h4>Definición</h4>
+                        <p>Las bermas son franjas de terreno ubicadas entre la calzada y la vereda, destinadas a arborización o separación de flujos.</p>
+                        <h4>Usos permitidos</h4>
+                        <ul>
+                            <li>Plantación de árboles y arbustos de bajo mantenimiento</li>
+                            <li>Estacionamiento temporal (con señalización)</li>
+                            <li>Infraestructura de servicios soterrada</li>
+                        </ul>
+                        <h4>Responsabilidad</h4>
+                        <p>El mantenimiento de bermas es responsabilidad de la municipalidad, aunque el propietario adyacente puede colaborar.</p>`,
+                    enlaceExterno: '',
+                    publicado: true
+                }
+            ];
+        }
+
+        // ── RENDER ───────────────────────────────────────────────
+        function renderGuias() {
+            const busqueda = document.getElementById('buscador').value.toLowerCase();
+            const grid = document.getElementById('guias-grid');
+
+            let lista = guiasData.filter(g => {
+                const matchCat = filtroActivo === 'todos' || g.categoria === filtroActivo;
+                const matchBus = !busqueda ||
+                    g.titulo.toLowerCase().includes(busqueda) ||
+                    (g.descripcion || '').toLowerCase().includes(busqueda) ||
+                    (g.norma || '').toLowerCase().includes(busqueda);
+                return matchCat && matchBus;
+            });
+
+            document.getElementById('section-meta').textContent = `${lista.length} guía${lista.length !== 1 ? 's' : ''}`;
+
+            if (!lista.length) {
+                grid.innerHTML = `<div class="gt-empty" style="grid-column:1/-1">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <p>No se encontraron guías con ese criterio.</p></div>`;
+                return;
+            }
+
+            grid.innerHTML = lista.map(g => `
+                <div class="gt-card" onclick="abrirModal('${g._id}')">
+                    <div class="gt-card-header">
+                        <div class="gt-card-icon ${g.color || 'verde'}">
+                            <i class="${g.icono || 'fa-solid fa-book'}"></i>
+                        </div>
+                        <div class="gt-card-meta">
+                            <div class="gt-card-norma">${g.norma || ''}</div>
+                            <div class="gt-card-titulo">${g.titulo}</div>
+                        </div>
+                    </div>
+                    <div class="gt-card-body">
+                        <p class="gt-card-desc">${g.descripcion || ''}</p>
+                    </div>
+                    <div class="gt-card-footer">
+                        <span class="gt-card-tag ${g.categoria}">${labelCategoria(g.categoria)}</span>
+                        <span class="gt-card-link">Ver detalle <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>`).join('');
+        }
+
+        function labelCategoria(cat) {
+            const m = { vereda:'Vereda', drenaje:'Drenaje', licencia:'Licencia', accesibilidad:'Accesibilidad', otro:'Otro' };
+            return m[cat] || cat;
+        }
+
+        function actualizarContadores() {
+            const cats = ['vereda','drenaje','licencia','accesibilidad','otro'];
+            document.getElementById('cnt-todos').textContent = guiasData.length;
+            cats.forEach(c => {
+                const el = document.getElementById(`cnt-${c}`);
+                if (el) el.textContent = guiasData.filter(g => g.categoria === c).length;
+            });
+        }
+
+        // ── FILTROS ──────────────────────────────────────────────
+        function setFiltro(cat, btn) {
+            filtroActivo = cat;
+            // Botones filtro
+            document.querySelectorAll('.gt-filtro-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            // Sidebar
+            document.querySelectorAll('.gt-sidebar-menu a').forEach(a => a.classList.remove('active'));
+            const titulos = { todos:'Todas las guías', vereda:'Veredas', drenaje:'Drenaje', licencia:'Licencias', accesibilidad:'Accesibilidad', otro:'Otros' };
+            const iconos  = { todos:'fa-grip', vereda:'fa-road', drenaje:'fa-droplet', licencia:'fa-file-signature', accesibilidad:'fa-universal-access', otro:'fa-folder' };
+            document.getElementById('section-title').innerHTML = `<i class="fa-solid ${iconos[cat]}"></i> ${titulos[cat]}`;
+            renderGuias();
+        }
+
+        function filtrarGuias() { renderGuias(); }
+
+        // ── MODAL DETALLE ────────────────────────────────────────
+        function abrirModal(id) {
+            const g = guiasData.find(x => x._id === id);
+            if (!g) return;
+            guiaActivaId = id;
+
+            document.getElementById('modal-titulo').textContent    = g.titulo;
+            document.getElementById('modal-norma-top').textContent = g.norma || '';
+            document.getElementById('modal-icono').className       = g.icono || 'fa-solid fa-book';
+
+            const body = document.getElementById('modal-body');
+            body.innerHTML = '';
+            if (g.norma) {
+                body.innerHTML += `<span class="gt-modal-norma-pill">
+                    <i class="fa-solid fa-gavel"></i> ${g.norma}</span>`;
+            }
+            body.innerHTML += g.contenido || `<p>${g.descripcion || ''}</p>`;
+
+            // Enlace externo
+            const enlaceEl = document.getElementById('modal-enlace');
+            if (g.enlaceExterno) {
+                enlaceEl.href = g.enlaceExterno;
+                enlaceEl.style.display = 'inline-flex';
+            } else {
+                enlaceEl.style.display = 'none';
+            }
+
+            // Botones admin
+            const adminBtns = document.getElementById('modal-admin-btns');
+            if (session && session.rol === 'admin') {
+                adminBtns.style.display = 'flex';
+            } else {
+                adminBtns.style.display = 'none';
+            }
+
+            document.getElementById('modal-detalle').classList.add('open');
+        }
+
+        function cerrarModal() { document.getElementById('modal-detalle').classList.remove('open'); }
+        function cerrarModalSiOverlay(e) { if (e.target === document.getElementById('modal-detalle')) cerrarModal(); }
+
+        // ── ACCIONES ADMIN ───────────────────────────────────────
+        function abrirModalNuevaGuia() {
+            alert('Panel de nueva guía próximamente. Por ahora puedes insertar guías directamente desde MongoDB Atlas con la estructura del modelo Guia.');
+        }
+
+        function editarGuia() {
+            alert(`Edición de guía ID: ${guiaActivaId} — Panel de edición próximamente.`);
+        }
+
+        async function eliminarGuia() {
+            if (!confirm('¿Eliminar esta guía? Esta acción no se puede deshacer.')) return;
+            const token = localStorage.getItem('oc_token');
+            try {
+                const r = await fetch(`${API}/api/guias/${guiaActivaId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (r.ok) {
+                    guiasData = guiasData.filter(g => g._id !== guiaActivaId);
+                    actualizarContadores();
+                    renderGuias();
+                    cerrarModal();
+                }
+            } catch {
+                alert('Error al eliminar. Verifica la conexión con el servidor.');
+            }
+        }
+    </script>
+
+</body>
+</html>

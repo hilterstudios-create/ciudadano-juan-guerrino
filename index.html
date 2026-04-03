@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatorio Ciudadano de Juan Guerra</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="icono.png" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .google-login-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #ffffff;
+            color: #202124;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            font-weight: 600;
+            padding: 8px 14px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            min-width: 230px;
+        }
+        .google-login-btn:hover {
+            background: #f7f8f9;
+        }
+        .google-login-btn i {
+            color: #ea4335;
+            font-size: 1rem;
+        }
+        .user-notification {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1d6f2a;
+            color: #fff;
+            padding: 8px 16px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            z-index: 1000;
+        }
+        .user-notification i { margin-right: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- TOP STRIP -->
+    <div class="un-topstrip">
+        <span>
+            <i class="fa-solid fa-house"></i>
+            Bienvenidos al Observatorio Ciudadano de Juan Guerra
+        </span>
+        <span class="disclaimer-pill">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            Iniciativa ciudadana independiente · No es un sitio oficial
+        </span>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header class="un-header">
+        <div class="un-header-inner">
+
+            <a href="index.html" class="un-brand">
+                <img src="icono.png" alt="Observatorio Ciudadano" class="un-logo" />
+                <div class="un-brand-text">
+                    <h1>
+                        <span>Ciudadano</span>
+                        <span>Juan Guerrino</span>
+                    </h1>
+                </div>
+            </a>
+
+            <div class="un-divider"></div>
+
+            <p class="un-tagline">
+                Registro, evidencia y seguimiento<br>de incidencias urbanas en Juan Guerra
+            </p>
+
+            <div class="un-header-actions">
+                <a href="inicio.html" class="un-acceder-btn">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Acceder al Panel</span>
+                </a>
+                <div id="session-area">
+                    <button class="google-login-btn" onclick="hacerLoginGoogle()">
+                        <i class="fa-brands fa-google"></i>
+                        Iniciar sesión con Google
+                    </button>
+                </div>
+                <div class="un-search-row">
+                    <input type="text" placeholder="Buscar caso o expediente..." />
+                    <button type="button">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- DARK NAV BAR -->
+    <nav class="un-nav">
+        <div class="un-nav-inner">
+            <a href="inicio.html" class="active">
+                El Observatorio <i class="fa-solid fa-chevron-down"></i>
+            </a>
+            <a href="inicio.html">
+                Qué monitoreamos <i class="fa-solid fa-chevron-down"></i>
+            </a>
+            <a href="inicio.html">
+                Casos y evidencia
+            </a>
+            <a href="inicio.html">
+                Participa
+            </a>
+        </div>
+    </nav>
+
+    <!-- HERO: VIDEO + ARTÍCULO DESTACADO -->
+    <section class="un-hero">
+
+        <!-- VIDEO (sube tu archivo como "video.mp4" en la misma carpeta) -->
+        <div class="un-hero-media">
+            <video autoplay loop muted playsinline preload="auto" poster="">
+                <source src="video.mp4" type="video/mp4">
+                <source src="video-fixed.mp4" type="video/mp4">
+                <!-- Placeholder visible si no hay video cargado -->
+            </video>
+            <div class="video-placeholder" id="video-placeholder">
+                <i class="fa-solid fa-video"></i>
+                <span>Sube tu video como <strong>video.mp4</strong> en esta carpeta</span>
+            </div>
+            <div id="video-error" class="video-error" style="display:none; padding:12px; color:#fff; background:#b22222; border-radius:4px; margin-top:10px; font-weight:700;">
+                El navegador no puede reproducir este video (HEVC). Convierte a H.264 o usa <strong>video-fixed.mp4</strong>.
+            </div>
+        </div>
+
+        <!-- ARTÍCULO DESTACADO -->
+        <div class="un-hero-article">
+            <div class="un-article-category">
+                <i class="fa-solid fa-circle-dot"></i>&nbsp; VIGILANCIA URBANA
+            </div>
+            <h2 class="un-article-title">
+                Espacio público y derecho ciudadano: cada vía importa
+            </h2>
+            <div class="un-article-divider"></div>
+            <p class="un-article-body">
+                El Observatorio Ciudadano de Juan Guerra documenta con evidencia verificable
+                las incidencias en veredas, drenaje y uso de la vía pública del distrito,
+                sustentado en el
+                <a href="inicio.html">Reglamento Nacional de Edificaciones</a>.
+                El seguimiento público de cada caso y las respuestas institucionales
+                permiten a la ciudadanía ejercer control real sobre el espacio que comparte.
+                La participación de cada vecino fortalece la transparencia local.
+            </p>
+            <a href="inicio.html" class="un-read-more">
+                Ver todos los casos &nbsp;<i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
+
+    </section>
+
+    <!-- ACCESO RÁPIDO -->
+    <div class="un-quickbar">
+        <div class="un-quickbar-inner">
+            <a href="inicio.html">
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>Reportar Caso</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Ver Casos</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>Mapa de Problemas</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-file-pen"></i>
+                <span>Generar Denuncia</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Seguimiento</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>Transparencia</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-bell"></i>
+                <span>Alertas</span>
+            </a>
+            <a href="inicio.html">
+                <i class="fa-solid fa-chart-bar"></i>
+                <span>Indicadores</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="un-footer">
+        <i class="fa-solid fa-circle-info"></i>
+        <strong>Observatorio Ciudadano de Juan Guerra</strong> &nbsp;·&nbsp; 2026 &nbsp;·&nbsp;
+        Proyecto ciudadano no oficial &nbsp;·&nbsp; No representa a ninguna entidad gubernamental
+    </footer>
+
+    <!-- NOTIFICACIÓN DE USUARIO LOGUEADO -->
+    <div id="user-notification" class="user-notification" style="display:none;">
+        <i class="fa-solid fa-user"></i>
+        <span id="user-info">Usuario: <span id="user-email"></span></span>
+    </div>
+
+    <script>
+        const video = document.querySelector('video');
+        const placeholder = document.getElementById('video-placeholder');
+
+        function hidePlaceholder() {
+            if (placeholder) placeholder.style.display = 'none';
+        }
+
+        if (video) {
+            video.addEventListener('loadeddata', hidePlaceholder);
+            video.addEventListener('canplay', hidePlaceholder);
+            video.addEventListener('error', (event) => {
+                console.error('Error al cargar video.mp4', event);
+                if (placeholder) placeholder.style.display = 'flex';
+            });
+
+            const attemptPlay = () => {
+                video.play().catch((err) => {
+                    console.warn('No se pudo iniciar autoplay:', err);
+                });
+            };
+
+            attemptPlay();
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    attemptPlay();
+                }
+            });
+
+            video.addEventListener('pause', () => {
+                // Si se pausa por ahorro, reintenta inmediatamente.
+                if (video.loop) {
+                    attemptPlay();
+                }
+            });
+
+            video.addEventListener('error', () => {
+                const errorBox = document.getElementById('video-error');
+                if (errorBox) errorBox.style.display = 'block';
+            });
+        }
+    </script>
+
+    <script>
+        // LOGIN FUNCTIONS
+        let session = null;
+
+        function cargarSesion() {
+            const token = localStorage.getItem('oc_token');
+            const user = localStorage.getItem('oc_user');
+            if (token && user) {
+                session = JSON.parse(user);
+                renderSessionArea();
+            }
+        }
+
+        function renderSessionArea() {
+            const area = document.getElementById('session-area');
+            const notification = document.getElementById('user-notification');
+            const userEmail = document.getElementById('user-email');
+
+            if (session) {
+                area.innerHTML = `
+                    <div class="session-info">
+                        <i class="fa-solid fa-circle-user" style="font-size:1.3rem;color:#1d6f2a"></i>
+                        <span>${session.nombre}</span>
+                        <button class="un-logout-btn" onclick="cerrarSesion()">Salir</button>
+                    </div>`;
+                notification.style.display = 'block';
+                userEmail.textContent = session.email;
+            } else {
+                area.innerHTML = `<button class="un-login-btn" onclick="hacerLoginGoogle()">
+                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión</button>`;
+                notification.style.display = 'none';
+            }
+        }
+
+        function hacerLoginGoogle() {
+            window.location.href = '/auth/google';
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('oc_token');
+            localStorage.removeItem('oc_user');
+            session = null;
+            renderSessionArea();
+        }
+
+        // Check for token in URL after Google login
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            localStorage.setItem('oc_token', token);
+            // Fetch user info
+            fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                localStorage.setItem('oc_user', JSON.stringify(data.usuario));
+                session = data.usuario;
+                renderSessionArea();
+                window.location.href = '/'; // Redirect to home
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', cargarSesion);
+    </script>
+
+
+
+</body>
+</html>

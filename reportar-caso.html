@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportar Caso - Observatorio Ciudadano</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .main-header { background: linear-gradient(135deg, #d32f2f, #b71c1c); }
+        .btn-submit { background: #d32f2f; border-color: #d32f2f; }
+        .btn-submit:hover { background: #b71c1c; }
+        .field-group label { color: #d32f2f; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Reportar Caso</h1>
+        <p>Formulario para reportar incidencias urbanas</p>
+        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    </header>
+    <main class="content">
+        <form id="reportar-form">
+            <div class="field-group">
+                <label for="tipo">Tipo de problema</label>
+                <select id="tipo" required>
+                    <option value="">Seleccionar</option>
+                    <option value="vereda">Vereda</option>
+                    <option value="drenaje">Drenaje</option>
+                    <option value="obra">Obra sin licencia</option>
+                    <option value="otro">Otro</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="direccion">Dirección exacta</label>
+                <input id="direccion" type="text" required placeholder="Calle, número, referencia" />
+            </div>
+            <div class="field-group">
+                <label for="descripcion">Descripción objetiva</label>
+                <textarea id="descripcion" rows="4" required placeholder="Descripción breve y factual"></textarea>
+            </div>
+            <div class="field-group">
+                <label for="media">Subida de fotos/videos</label>
+                <input id="media" type="file" accept="image/*,video/*" multiple />
+            </div>
+            <div class="field-group">
+                <label>Fecha y hora</label>
+                <input type="text" id="fecha-actual" readonly />
+            </div>
+            <button type="submit" class="btn-submit">Enviar reporte</button>
+        </form>
+    </main>
+    <script>
+        document.getElementById('fecha-actual').value = new Date().toLocaleString();
+
+        document.getElementById('reportar-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                titulo: document.getElementById('tipo').value,
+                descripcion: document.getElementById('descripcion').value,
+                categoria: document.getElementById('tipo').value,
+                ubicacion: document.getElementById('direccion').value,
+                // evidencia: [] // TODO: handle file uploads
+            };
+
+            try {
+                const response = await fetch('/api/casos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    alert('Caso reportado con éxito');
+                    document.getElementById('reportar-form').reset();
+                } else {
+                    alert('Error al reportar el caso');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        });
+    </script>
+</body>
+</html>

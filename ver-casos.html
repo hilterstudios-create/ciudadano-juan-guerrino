@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Casos - Observatorio Ciudadano</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .main-header { background: linear-gradient(135deg, #1976d2, #1565c0); }
+        .btn-submit { background: #1976d2; border-color: #1976d2; }
+        .btn-submit:hover { background: #1565c0; }
+        .case-item { border-left: 4px solid #1976d2; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Ver Casos</h1>
+        <p>Listado público de incidencias</p>
+        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    </header>
+    <main class="content">
+        <div class="field-group">
+            <label>Tipo</label>
+            <select id="filtro-tipo">
+                <option value="">Todos</option>
+                <option value="vereda">Vereda</option>
+                <option value="drenaje">Drenaje</option>
+                <option value="obra">Obra sin licencia</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label>Zona</label>
+            <input id="filtro-zona" placeholder="Ingrese zona" />
+        </div>
+        <div class="field-group">
+            <label>Estado</label>
+            <select id="filtro-estado">
+                <option value="">Todos</option>
+                <option>Reportado</option>
+                <option>En inspección</option>
+                <option>Con orden municipal</option>
+                <option>Resuelto</option>
+            </select>
+        </div>
+        <button class="btn-submit" onclick="filtrarCasos()">Filtrar</button>
+        <hr />
+        <div id="casos-container">
+            <!-- Casos se cargarán aquí dinámicamente -->
+        </div>
+    </main>
+    <script>
+        async function cargarCasos() {
+            try {
+                const response = await fetch('/api/casos');
+                const casos = await response.json();
+                mostrarCasos(casos);
+            } catch (error) {
+                console.error('Error cargando casos:', error);
+                document.getElementById('casos-container').innerHTML = '<p>Error al cargar casos</p>';
+            }
+        }
+
+        function mostrarCasos(casos) {
+            const container = document.getElementById('casos-container');
+            if (casos.length === 0) {
+                container.innerHTML = '<p>No hay casos reportados</p>';
+                return;
+            }
+            container.innerHTML = casos.map(caso => `
+                <article class="case-item">
+                    <h3>Caso ${caso._id.slice(-6)}</h3>
+                    <p>Tipo: ${caso.categoria} | Estado: ${caso.estado}</p>
+                    <p>Dirección: ${caso.ubicacion}</p>
+                    <p>${caso.descripcion}</p>
+                    <button class="btn-submit" onclick="verDetalle('${caso._id}')">Ver detalle</button>
+                </article>
+            `).join('');
+        }
+
+        function filtrarCasos() {
+            const tipo = document.getElementById('filtro-tipo').value;
+            const zona = document.getElementById('filtro-zona').value.toLowerCase();
+            const estado = document.getElementById('filtro-estado').value.toLowerCase();
+
+            // TODO: Implementar filtrado en backend o filtrar aquí
+            cargarCasos(); // Por ahora recarga todos
+        }
+
+        function verDetalle(id) {
+            // TODO: Mostrar modal o redirigir a página de detalle
+            alert(`Detalle del caso ${id}`);
+        }
+
+        // Cargar casos al iniciar
+        cargarCasos();
+    </script>
+</body>
+</html>

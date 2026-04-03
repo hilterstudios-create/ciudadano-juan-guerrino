@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seguimiento - Observatorio Ciudadano</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .main-header { background: linear-gradient(135deg, #00bcd4, #0097a7); }
+        .btn-submit { background: #00bcd4; border-color: #00bcd4; }
+        .btn-submit:hover { background: #0097a7; }
+        .field-group label { color: #00bcd4; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <header class="main-header">
+        <h1>Seguimiento</h1>
+        <p>Seguimiento de casos por código.</p>
+        <a href="inicio.html" class="btn-submit">Volver al Inicio</a>
+    </header>
+    <main class="content">
+        <div class="field-group"><label>Código de caso</label><input placeholder="CASO-0001" /></div>
+        <button class="btn-submit" onclick="alert('Búsqueda activa (simulado)')">Buscar</button>
+        <div class="field-group"><label>Línea de tiempo</label>
+            <ul>
+                <li>Reportado</li>
+                <li>En inspección</li>
+                <li>Respuesta municipal</li>
+                <li>Resuelto</li>
+            </ul>
+        </div>
+        <div class="field-group"><label>Estado actual:</label><strong>En inspección</strong></div>
+    </main>
+</body>
+</html>

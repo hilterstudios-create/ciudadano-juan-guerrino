@@ -1,5 +1,4 @@
 require('dotenv').config();
-console.log('SERVER START - env probe:');require('dotenv').config();
 console.log('SERVER START - env probe:');
 console.log('  SUPABASE_URL=', process.env.SUPABASE_URL);
 console.log('  SUPABASE_SERVICE_ROLE_KEY=', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -68,9 +67,16 @@ passport.use(new GoogleStrategy({
         nombre: profile.displayName,
         email: profile.emails[0].value,
         googleId: profile.id,
+        foto: profile.photos[0].value, // foto de perfil de Google
         rol: 'usuario' // por defecto
       });
       await usuario.save();
+    } else {
+      // Actualizar foto si cambió
+      if (usuario.foto !== profile.photos[0].value) {
+        usuario.foto = profile.photos[0].value;
+        await usuario.save();
+      }
     }
     return done(null, usuario);
   } catch (err) {
@@ -101,6 +107,7 @@ const usuarioSchema = new mongoose.Schema({
   email:    { type: String, required: true, unique: true },
   password: { type: String, required: false }, // opcional para Google auth
   googleId: { type: String, sparse: true }, // único para usuarios de Google
+  foto:     { type: String }, // URL de foto de perfil de Google
   rol:      { type: String, enum: ['admin', 'usuario'], default: 'usuario' },
   activo:   { type: Boolean, default: true },
   creadoEn: { type: Date, default: Date.now }
@@ -242,6 +249,18 @@ app.get('/api/auth/me', verificarToken, (req, res) => {
   res.json({ usuario: req.usuario });
 });
 
+app.put('/api/auth/me', verificarToken, async (req, res) => {
+  try {
+    const { nombre } = req.body;
+    if (!nombre) return res.status(400).json({ error: 'Nombre requerido' });
+    const usuario = await Usuario.findByIdAndUpdate(req.usuario.id, { nombre }, { new: true });
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    res.json({ usuario: { nombre: usuario.nombre, email: usuario.email, foto: usuario.foto, rol: usuario.rol } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── RUTAS: GOOGLE OAUTH ──────────────────────────────────────
 
 // Iniciar autenticación con Google
@@ -255,7 +274,7 @@ app.get('/auth/google/callback',
   (req, res) => {
     // Generar JWT para el usuario autenticado
     const token = jwt.sign(
-      { id: req.user._id, nombre: req.user.nombre, email: req.user.email, rol: req.user.rol },
+      { id: req.user._id, nombre: req.user.nombre, email: req.user.email, foto: req.user.foto, rol: req.user.rol },
       JWT_SECRET,
       { expiresIn: '8h' }
     );

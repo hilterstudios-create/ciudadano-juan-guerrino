@@ -406,11 +406,6 @@
                     </div>
                     <p><strong>${name}</strong></p>
                     <p>${session.email || ''}</p>
-                    <div style="margin-top: 8px;">
-                        <label for="nombre-input-right" style="font-size: 0.85rem;">Cambiar nombre:</label>
-                        <input type="text" id="nombre-input-right" value="${name}" style="width: 100%; padding: 4px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;">
-                        <button onclick="cambiarNombre()" style="margin-top: 4px; padding: 4px 8px; background: #1d6f2a; color: white; border: none; border-radius: 4px; cursor: pointer;">Guardar</button>
-                    </div>
                     <span class="role-tag">Rol: ${role}</span>
                 `;
                 const extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
@@ -424,31 +419,6 @@
             handle.title = session ? 'Panel de usuario' : 'Iniciar sesión / abrir panel';
             // dejar siempre visible para interacción (se quita el nombre de usuario arriba)
             handle.classList.remove('hidden');
-        }
-
-        function cambiarNombre() {
-            const nuevoNombre = document.getElementById('nombre-input-right').value.trim();
-            if (!nuevoNombre) return alert('Nombre no puede estar vacío');
-            fetch('/api/auth/me', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('oc_token')}`
-                },
-                body: JSON.stringify({ nombre: nuevoNombre })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.usuario) {
-                    session.nombre = data.usuario.nombre;
-                    localStorage.setItem('oc_user', JSON.stringify(session));
-                    updateProfileDrawer();
-                    alert('Nombre actualizado');
-                } else {
-                    alert('Error al actualizar nombre');
-                }
-            })
-            .catch(err => console.error('Error:', err));
         }
 
         function loadSession() {

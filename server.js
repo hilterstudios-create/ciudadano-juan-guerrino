@@ -97,7 +97,7 @@ passport.deserializeUser(async (id, done) => {
 // Multer en memoria para subir imágenes a Supabase
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB máx por archivo
+  limits: { fileSize: 50 * 1024 * 1024 } // 50MB máx por archivo
 });
 
 // ── ESQUEMAS MONGODB ─────────────────────────────────────────
@@ -484,6 +484,17 @@ app.delete('/api/noticias/:id', verificarToken, soloAdmin, async (req, res) => {
     const noticia = await Noticia.findByIdAndUpdate(req.params.id, { estado: 'archivado' }, { new: true });
     if (!noticia) return res.status(404).json({ error: 'Noticia no encontrada' });
     res.json({ mensaje: 'Noticia archivada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/noticias/:id/hard — eliminar definitivamente la noticia
+app.delete('/api/noticias/:id/hard', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const noticia = await Noticia.findByIdAndDelete(req.params.id);
+    if (!noticia) return res.status(404).json({ error: 'Noticia no encontrada' });
+    res.json({ mensaje: 'Noticia eliminada permanentemente' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

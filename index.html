@@ -39,8 +39,8 @@
             height: 100%;
             background: #0e2b18;
             color: #fff;
-            transform: translateX(-100%);
-            transition: transform 0.25s ease;
+            transform: translateX(calc(-100% + 60px));
+            transition: transform 0.2s ease;
             z-index: 2500;
             box-shadow: 5px 0 20px rgba(0,0,0,0.25);
             display: flex;
@@ -144,12 +144,7 @@
                     <i class="fa-solid fa-arrow-right-to-bracket"></i>
                     <span>Acceder al Panel</span>
                 </a>
-                <div id="session-area">
-                    <button class="google-login-btn" onclick="toggleProfileDrawer(true)">
-                        <i class="fa-solid fa-user"></i>
-                        Perfil
-                    </button>
-                </div>
+                <div id="session-area"></div>
                 <div class="un-search-row">
                     <input type="text" placeholder="Buscar caso o expediente..." />
                     <button type="button">
@@ -322,9 +317,10 @@
         // LOGIN FUNCTIONS
         let session = null;
 
-        function toggleProfileDrawer(open) {
+        function toggleProfileDrawer(isOpen) {
             const drawer = document.getElementById('profile-drawer');
-            if (open) {
+            if (!drawer) return;
+            if (isOpen) {
                 drawer.classList.add('open');
             } else {
                 drawer.classList.remove('open');
@@ -337,7 +333,7 @@
 
             if (!session) {
                 status.innerHTML = '<p><strong>Sesión no iniciada</strong></p><p>Inicia sesión para ver tu perfil y opciones.</p>';
-                actions.innerHTML = '<button class="action-btn login" onclick="hacerLoginGoogle();">Iniciar sesión con Google</button>';
+                actions.innerHTML = '<button class="action-btn login" onclick="window.location.href=\'/auth/google\';">Iniciar sesión con Google</button>';
             } else {
                 const displayName = session.nombre || 'Usuario';
                 const role = session.rol || 'usuario';
@@ -355,7 +351,7 @@
 
                 actions.innerHTML = `
                     ${extra}
-                    <button class="action-btn logout" onclick="cerrarSesion(); toggleProfileDrawer(false);">Cerrar sesión</button>
+                    <button class="action-btn logout" onclick="cerrarSesion();">Cerrar sesión</button>
                 `;
             }
         }
@@ -375,18 +371,13 @@
             const drawer = document.getElementById('profile-drawer');
             if (!sessionArea || !drawer) return;
 
-            sessionArea.addEventListener('mouseenter', () => {
-                if (session) {
-                    drawer.classList.add('open');
-                } else {
-                    drawer.classList.add('open');
-                }
-            });
-            sessionArea.addEventListener('mouseleave', () => {
-                drawer.classList.remove('open');
-            });
-            drawer.addEventListener('mouseenter', () => drawer.classList.add('open'));
-            drawer.addEventListener('mouseleave', () => drawer.classList.remove('open'));
+            const openDrawer = () => drawer.classList.add('open');
+            const closeDrawer = () => !drawer.matches(':hover') && drawer.classList.remove('open');
+
+            sessionArea.addEventListener('mouseenter', openDrawer);
+            sessionArea.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+            drawer.addEventListener('mouseenter', openDrawer);
+            drawer.addEventListener('mouseleave', closeDrawer);
         }
 
         function renderSessionArea() {
@@ -394,12 +385,12 @@
 
             if (session) {
                 area.innerHTML = `
-                    <button class="google-login-btn" onclick="toggleProfileDrawer(true)">
+                    <div class="google-login-btn" style="cursor:default;">
                         <i class="fa-solid fa-user"></i> ${session.nombre}
-                    </button>`;
+                    </div>`;
             } else {
-                area.innerHTML = `<button class="google-login-btn" onclick="toggleProfileDrawer(true)">
-                    <i class="fa-solid fa-user"></i> Acceder
+                area.innerHTML = `<button class="google-login-btn" onclick="window.location.href='/auth/google';">
+                    <i class="fa-solid fa-user"></i> Iniciar sesión
                 </button>`;
             }
             updateProfileDrawer();

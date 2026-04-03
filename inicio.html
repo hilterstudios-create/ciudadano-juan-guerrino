@@ -26,33 +26,6 @@
         }
         .profile-drawer-right.open { transform: translateX(0); }
         .profile-drawer-right h3 { margin-bottom: 12px; }
-
-        .profile-handle-right {
-            position: fixed;
-            top: 50%;
-            right: 0;
-            transform: translate(50%, -50%);
-            width: 30px;
-            height: 90px;
-            background: #1d6f2a;
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 2601;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.3);
-        }
-
-        .profile-handle-right i {
-            color: #fff;
-            transition: transform 0.2s ease;
-        }
-
-        .profile-handle-right.open i {
-            transform: rotate(-180deg);
-        }
         .profile-drawer-right .drawer-close {
             position: absolute;
             top: 12px;
@@ -396,13 +369,9 @@
     </div>
 
     <div id="profile-drawer-right" class="profile-drawer-right">
-        <button class="drawer-close" onclick="toggleProfileDrawer(false)">&times;</button>
         <h3>Panel de usuario</h3>
         <div id="profile-status-right"></div>
         <div id="profile-actions-right"></div>
-    </div>
-    <div id="profile-handle-right" class="profile-handle-right" title="Abrir perfil">
-        <i class="fa-solid fa-chevron-left"></i>
     </div>
 
     <!-- FOOTER -->
@@ -434,8 +403,6 @@
                 const extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
                 actionsEl.innerHTML = `${extra}<button class="action-btn logout" onclick="logout();">Cerrar sesión</button>`;
             }
-
-            renderProfileHandle();
         }
 
         function renderProfileHandle() {
@@ -465,32 +432,19 @@
         }
 
         function setupHoverDrawer() {
-            const handle = document.getElementById('profile-handle-right');
+            const sessionArea = document.getElementById('session-area');
             const drawer = document.getElementById('profile-drawer-right');
-            if (!handle || !drawer) return;
+            if (!sessionArea || !drawer) return;
 
-            const openDrawer = () => {
-                drawer.classList.add('open');
-                handle.classList.add('open');
-            };
+            const openDrawer = () => drawer.classList.add('open');
             const closeDrawer = () => {
-                if (!drawer.matches(':hover') && !handle.matches(':hover')) {
+                if (!drawer.matches(':hover') && !sessionArea.matches(':hover')) {
                     drawer.classList.remove('open');
-                    handle.classList.remove('open');
                 }
             };
 
-            handle.addEventListener('click', () => {
-                if (drawer.classList.contains('open')) {
-                    drawer.classList.remove('open');
-                    handle.classList.remove('open');
-                } else {
-                    openDrawer();
-                }
-            });
-            handle.addEventListener('mouseenter', openDrawer);
-            handle.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
-
+            sessionArea.addEventListener('mouseenter', openDrawer);
+            sessionArea.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
             drawer.addEventListener('mouseenter', openDrawer);
             drawer.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
         }

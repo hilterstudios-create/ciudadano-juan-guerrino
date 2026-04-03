@@ -16,7 +16,7 @@
             height: 100%;
             background: #0e2b18;
             color: #fff;
-            transform: translateX(calc(100% - 64px));
+            transform: translateX(calc(100% - 24px));
             transition: transform 0.2s ease;
             z-index: 2500;
             box-shadow: -5px 0 20px rgba(0,0,0,0.3);
@@ -26,6 +26,33 @@
         }
         .profile-drawer-right.open { transform: translateX(0); }
         .profile-drawer-right h3 { margin-bottom: 12px; }
+
+        .profile-handle-right {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translate(50%, -50%);
+            width: 30px;
+            height: 90px;
+            background: #1d6f2a;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 2601;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.3);
+        }
+
+        .profile-handle-right i {
+            color: #fff;
+            transition: transform 0.2s ease;
+        }
+
+        .profile-handle-right.open i {
+            transform: rotate(-180deg);
+        }
         .profile-drawer-right .drawer-close {
             position: absolute;
             top: 12px;
@@ -374,6 +401,9 @@
         <div id="profile-status-right"></div>
         <div id="profile-actions-right"></div>
     </div>
+    <div id="profile-handle-right" class="profile-handle-right" title="Abrir perfil">
+        <i class="fa-solid fa-chevron-left"></i>
+    </div>
 
     <!-- FOOTER -->
     <footer>
@@ -393,20 +423,27 @@
         function updateProfileDrawer() {
             const statusEl = document.getElementById('profile-status-right');
             const actionsEl = document.getElementById('profile-actions-right');
-            const sessionArea = document.getElementById('session-area');
 
             if (!session) {
                 statusEl.innerHTML = '<p><strong>Sesión no iniciada</strong><br>Inicia sesión para usar todas las funcionalidades.</p>';
                 actionsEl.innerHTML = '<button class="action-btn login" onclick="window.location.href=\'/auth/google\';">Iniciar sesión con Google</button>';
-                if (sessionArea) sessionArea.innerHTML = '<a class="profile-btn" href="/auth/google"><i class="fa-solid fa-user"></i> Iniciar sesión</a>';
             } else {
                 const name = session.nombre || 'Usuario';
                 const role = session.rol || 'usuario';
                 statusEl.innerHTML = `<p><strong>${name}</strong></p><p>${session.email || ''}</p><span class="role-tag">Rol: ${role}</span>`;
-                let extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
+                const extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
                 actionsEl.innerHTML = `${extra}<button class="action-btn logout" onclick="logout();">Cerrar sesión</button>`;
-                if (sessionArea) sessionArea.innerHTML = '<div class="profile-btn" style="cursor: default;"><i class="fa-solid fa-user"></i> Perfil</div>';
             }
+
+            renderProfileHandle();
+        }
+
+        function renderProfileHandle() {
+            const handle = document.getElementById('profile-handle-right');
+            if (!handle) return;
+            handle.title = session ? 'Panel de usuario' : 'Iniciar sesión / abrir panel';
+            // dejar siempre visible para interacción (se quita el nombre de usuario arriba)
+            handle.classList.remove('hidden');
         }
 
         function logout() {
@@ -415,6 +452,7 @@
             session = null;
             updateProfileDrawer();
             toggleProfileDrawer(false);
+            renderProfileHandle();
         }
 
         function loadSession() {
@@ -427,17 +465,34 @@
         }
 
         function setupHoverDrawer() {
-            const sessionArea = document.getElementById('session-area');
+            const handle = document.getElementById('profile-handle-right');
             const drawer = document.getElementById('profile-drawer-right');
-            if (!sessionArea || !drawer) return;
+            if (!handle || !drawer) return;
 
-            const openDrawer = () => drawer.classList.add('open');
-            const closeDrawer = () => !drawer.matches(':hover') && drawer.classList.remove('open');
+            const openDrawer = () => {
+                drawer.classList.add('open');
+                handle.classList.add('open');
+            };
+            const closeDrawer = () => {
+                if (!drawer.matches(':hover') && !handle.matches(':hover')) {
+                    drawer.classList.remove('open');
+                    handle.classList.remove('open');
+                }
+            };
 
-            sessionArea.addEventListener('mouseenter', openDrawer);
-            sessionArea.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+            handle.addEventListener('click', () => {
+                if (drawer.classList.contains('open')) {
+                    drawer.classList.remove('open');
+                    handle.classList.remove('open');
+                } else {
+                    openDrawer();
+                }
+            });
+            handle.addEventListener('mouseenter', openDrawer);
+            handle.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+
             drawer.addEventListener('mouseenter', openDrawer);
-            drawer.addEventListener('mouseleave', closeDrawer);
+            drawer.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
         }
 
         function initAuth() {
@@ -453,6 +508,7 @@
                             session = data.usuario;
                             updateProfileDrawer();
                         }
+                        renderProfileHandle();
                         window.history.replaceState({}, '', window.location.pathname);
                     });
             }

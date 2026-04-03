@@ -413,12 +413,13 @@
             }
         }
 
-        function renderProfileHandle() {
-            const handle = document.getElementById('profile-handle-right');
-            if (!handle) return;
-            handle.title = session ? 'Panel de usuario' : 'Iniciar sesión / abrir panel';
-            // dejar siempre visible para interacción (se quita el nombre de usuario arriba)
-            handle.classList.remove('hidden');
+        function logout() {
+            localStorage.removeItem('oc_token');
+            localStorage.removeItem('oc_user');
+            session = null;
+            updateProfileDrawer();
+            toggleProfileDrawer(false);
+            renderProfileHandle();
         }
 
         function loadSession() {

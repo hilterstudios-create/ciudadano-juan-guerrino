@@ -46,10 +46,15 @@
     </style>
 </head>
 <body>
-    <header class="main-header">
-        <h1>Panel de Administración</h1>
-        <p id="userInfo">Cargando...</p>
-        <a href="inicio.html" class="btn-submit" onclick="logout()">Cerrar Sesión</a>
+    <header class="main-header" style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+        <div>
+            <h1 style="margin:0; font-size:1.5rem;">Panel de Administración</h1>
+            <p id="userInfo" style="margin:4px 0 0; font-size:0.95rem; color:#e0e0e0;">Cargando...</p>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <a href="inicio.html" class="btn-submit" style="background:#fff; color:#37474f; border: 1px solid #ccc;">Volver al Inicio</a>
+            <button class="btn-submit" style="background:#d32f2f; border:none;" onclick="logout()">Cerrar Sesión</button>
+        </div>
     </header>
 
     <div class="admin-container">
@@ -88,6 +93,8 @@
                     <div class="form-group">
                         <label>Imagen principal (URL)</label>
                         <input type="url" class="form-control" id="imagenPrincipal">
+                        <button type="button" class="btn btn-secondary" style="margin-top:8px;" onclick="triggerMainImageUpload()">Subir imagen principal</button>
+                        <div id="mainImagePreview" style="margin-top:8px;"></div>
                     </div>
                     <div class="form-group">
                         <label>Categoría</label>
@@ -165,6 +172,7 @@
         let currentNews = null;
         let blocks = [];
         let currentUploadBlockIndex = null;
+        let mainImageUploadMode = false;
 
         // Auth check
         const authStatus = document.createElement('div');
@@ -222,12 +230,14 @@
 
         uploadInput.addEventListener('change', async (event) => {
             const file = event.target.files[0];
-            if (!file || !currentUploadBlockIndex) return;
+            if (!file) return;
             const fd = new FormData();
             fd.append('archivos', file);
             fd.append('carpeta', 'noticias');
 
-            document.getElementById('newsList').innerHTML = '<div class="loading">Subiendo imagen...</div>';
+            let alertArea = document.getElementById('newsList');
+            if (alertArea) alertArea.innerHTML = '<div class="loading">Subiendo imagen...</div>';
+
             try {
                 const res = await fetch('/api/upload', {
                     method: 'POST',
@@ -236,8 +246,16 @@
                 });
                 const data = await res.json();
                 if (res.ok && data.urls && data.urls.length) {
-                    blocks[currentUploadBlockIndex].contenido = data.urls[0];
-                    renderBlocks();
+                    const imageUrl = data.urls[0];
+                    if (mainImageUploadMode) {
+                        const imgInput = document.getElementById('imagenPrincipal');
+                        const preview = document.getElementById('mainImagePreview');
+                        if (imgInput) imgInput.value = imageUrl;
+                        if (preview) preview.innerHTML = `<img src="${imageUrl}" style="max-width:100%; border-radius:4px;" alt="Imagen Principal">`;
+                    } else if (currentUploadBlockIndex !== null) {
+                        blocks[currentUploadBlockIndex].contenido = imageUrl;
+                        renderBlocks();
+                    }
                 } else {
                     alert('Error al subir imagen: ' + (data.error || 'sin detalle'));
                 }
@@ -247,7 +265,8 @@
             } finally {
                 uploadInput.value = '';
                 currentUploadBlockIndex = null;
-                loadNews();
+                mainImageUploadMode = false;
+                if (token && ['superadmin', 'admin', 'editor', 'autor', 'moderador'].includes(user.rol)) loadNews();
             }
         });
 
@@ -294,7 +313,8 @@
                     <div class="status-badge status-${item.estado}">${item.estado}</div>
                     <div class="news-actions">
                         <button class="btn btn-primary" onclick="editNews('${item._id}')">Editar</button>
-                        <button class="btn btn-danger" onclick="deleteNews('${item._id}')">Archivar</button>
+                        <button class="btn btn-secondary" onclick="deleteNews('${item._id}')">Archivar</button>
+                        <button class="btn btn-danger" onclick="hardDeleteNews('${item._id}')">Eliminar</button>
                     </div>
                 </div>
             `).join('');
@@ -454,11 +474,34 @@
                 console.error('Error:', error);
             }
         }
+
+        async function hardDeleteNews(id) {
+            if (!confirm('¿Eliminar definitivamente esta noticia? Esta acción no se puede deshacer.')) return;
+            try {
+                const response = await fetch(`/api/noticias/${id}/hard`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) loadNews();
+            } catch (error) {
+                console.error('Error: ', error);
+            }
+        }
+
         function triggerUploadForBlock(index) {
             currentUploadBlockIndex = index;
+            mainImageUploadMode = false;
             const uploadInput = document.getElementById('uploadImageInput');
             if (uploadInput) uploadInput.click();
         }
+
+        function triggerMainImageUpload() {
+            mainImageUploadMode = true;
+            currentUploadBlockIndex = null;
+            const uploadInput = document.getElementById('uploadImageInput');
+            if (uploadInput) uploadInput.click();
+        }
+
         function logout() {
             localStorage.removeItem('oc_token');
             localStorage.removeItem('oc_user');
@@ -466,7 +509,7 @@
         }
 
         // Load initial data if se cumple auth
-        if (token && ['superadmin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
+        if (token && ['superadmin', 'admin', 'editor', 'autor', 'moderador'].includes(user.rol)) {
             loadNews();
         }
     </script>

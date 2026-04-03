@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log('SERVER START - env probe:');require('dotenv').config();
 console.log('SERVER START - env probe:');
 console.log('  SUPABASE_URL=', process.env.SUPABASE_URL);
 console.log('  SUPABASE_SERVICE_ROLE_KEY=', !!process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -19,6 +20,8 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 
 const app = express();
+app.set('trust proxy', 1); // necesario en Render/GCP/Heroku para URLs generadas con https
+
 const PORT = process.env.PORT || 5500;
 const JWT_SECRET = process.env.JWT_SECRET || 'cambia-esto-en-produccion';
 
@@ -49,10 +52,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Configurar Passport con Google OAuth
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || 'https://ciudadano-juan-guerrino.onrender.com/auth/google/callback';
+
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: '/auth/google/callback'
+  callbackURL: GOOGLE_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     // Buscar usuario por googleId

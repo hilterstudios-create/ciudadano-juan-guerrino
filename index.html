@@ -31,6 +31,56 @@
             color: #ea4335;
             font-size: 1rem;
         }
+        .profile-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100%;
+            background: #0e2b18;
+            color: #fff;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            z-index: 2500;
+            box-shadow: 5px 0 20px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .profile-drawer.open { transform: translateX(0); }
+        .profile-drawer h3 { font-size: 1.1rem; margin-bottom: 12px; }
+        .profile-drawer .drawer-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        .profile-drawer p { margin: 8px 0; line-height: 1.4; }
+        .profile-drawer .role-tag {
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.15);
+            display: inline-block;
+            margin-top: 6px;
+            font-size: 0.78rem;
+        }
+        .profile-drawer .action-btn {
+            margin-top: 16px;
+            width: 100%;
+            border: none;
+            border-radius: 4px;
+            padding: 9px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background .2s;
+        }
+        .profile-drawer .action-btn.logout { background: #ff4757; color: #fff; }
+        .profile-drawer .action-btn.login { background: #1d6f2a; color: #fff; }
+
         .user-notification {
             position: fixed;
             bottom: 0;
@@ -48,6 +98,14 @@
     </style>
 </head>
 <body>
+
+    <!-- PERFIL DESLIZABLE IZQUIERDA -->
+    <div id="profile-drawer" class="profile-drawer">
+        <button class="drawer-close" onclick="toggleProfileDrawer(false)">&times;</button>
+        <h3>Perfil</h3>
+        <div id="profile-status"></div>
+        <div id="profile-actions"></div>
+    </div>
 
     <!-- TOP STRIP -->
     <div class="un-topstrip">
@@ -87,9 +145,9 @@
                     <span>Acceder al Panel</span>
                 </a>
                 <div id="session-area">
-                    <button class="google-login-btn" onclick="hacerLoginGoogle()">
-                        <i class="fa-brands fa-google"></i>
-                        Iniciar sesión con Google
+                    <button class="google-login-btn" onclick="toggleProfileDrawer(true)">
+                        <i class="fa-solid fa-user"></i>
+                        Perfil
                     </button>
                 </div>
                 <div class="un-search-row">
@@ -264,34 +322,68 @@
         // LOGIN FUNCTIONS
         let session = null;
 
+        function toggleProfileDrawer(open) {
+            const drawer = document.getElementById('profile-drawer');
+            if (open) {
+                drawer.classList.add('open');
+            } else {
+                drawer.classList.remove('open');
+            }
+        }
+
+        function updateProfileDrawer() {
+            const status = document.getElementById('profile-status');
+            const actions = document.getElementById('profile-actions');
+
+            if (!session) {
+                status.innerHTML = '<p><strong>Sesión no iniciada</strong></p><p>Inicia sesión para ver tu perfil y opciones.</p>';
+                actions.innerHTML = '<button class="action-btn login" onclick="hacerLoginGoogle();">Iniciar sesión con Google</button>';
+            } else {
+                const displayName = session.nombre || 'Usuario';
+                const role = session.rol || 'usuario';
+
+                status.innerHTML = `
+                    <p><strong>${displayName}</strong></p>
+                    <p><small>${session.email || ''}</small></p>
+                    <span class="role-tag">Rol: ${role}</span>
+                `;
+
+                let extra = '';
+                if (role === 'admin') {
+                    extra = '<p style="margin-top: 12px;">Acceso administrativo activado.</p>';
+                }
+
+                actions.innerHTML = `
+                    ${extra}
+                    <button class="action-btn logout" onclick="cerrarSesion(); toggleProfileDrawer(false);">Cerrar sesión</button>
+                `;
+            }
+        }
+
         function cargarSesion() {
             const token = localStorage.getItem('oc_token');
             const user = localStorage.getItem('oc_user');
             if (token && user) {
                 session = JSON.parse(user);
-                renderSessionArea();
             }
+            renderSessionArea();
+            updateProfileDrawer();
         }
 
         function renderSessionArea() {
             const area = document.getElementById('session-area');
-            const notification = document.getElementById('user-notification');
-            const userEmail = document.getElementById('user-email');
 
             if (session) {
                 area.innerHTML = `
-                    <div class="session-info">
-                        <i class="fa-solid fa-circle-user" style="font-size:1.3rem;color:#1d6f2a"></i>
-                        <span>${session.nombre}</span>
-                        <button class="un-logout-btn" onclick="cerrarSesion()">Salir</button>
-                    </div>`;
-                notification.style.display = 'block';
-                userEmail.textContent = session.email;
+                    <button class="google-login-btn" onclick="toggleProfileDrawer(true)">
+                        <i class="fa-solid fa-user"></i> ${session.nombre}
+                    </button>`;
             } else {
-                area.innerHTML = `<button class="un-login-btn" onclick="hacerLoginGoogle()">
-                    <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión</button>`;
-                notification.style.display = 'none';
+                area.innerHTML = `<button class="google-login-btn" onclick="toggleProfileDrawer(true)">
+                    <i class="fa-solid fa-user"></i> Acceder
+                </button>`;
             }
+            updateProfileDrawer();
         }
 
         function hacerLoginGoogle() {
@@ -303,6 +395,7 @@
             localStorage.removeItem('oc_user');
             session = null;
             renderSessionArea();
+            toggleProfileDrawer(false);
         }
 
         // Check for token in URL after Google login
@@ -319,7 +412,7 @@
                 localStorage.setItem('oc_user', JSON.stringify(data.usuario));
                 session = data.usuario;
                 renderSessionArea();
-                window.location.href = '/'; // Redirect to home
+                window.history.replaceState({}, '', '/');
             });
         }
 

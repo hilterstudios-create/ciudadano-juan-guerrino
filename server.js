@@ -249,18 +249,6 @@ app.get('/api/auth/me', verificarToken, (req, res) => {
   res.json({ usuario: req.usuario });
 });
 
-app.put('/api/auth/me', verificarToken, async (req, res) => {
-  try {
-    const { nombre } = req.body;
-    if (!nombre) return res.status(400).json({ error: 'Nombre requerido' });
-    const usuario = await Usuario.findByIdAndUpdate(req.usuario.id, { nombre }, { new: true });
-    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
-    res.json({ usuario: { nombre: usuario.nombre, email: usuario.email, foto: usuario.foto, rol: usuario.rol } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
 // ── RUTAS: GOOGLE OAUTH ──────────────────────────────────────
 
 // Iniciar autenticación con Google

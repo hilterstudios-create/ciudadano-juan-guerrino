@@ -48,37 +48,6 @@
             padding: 20px;
         }
         .profile-drawer.open { transform: translateX(0); }
-
-        .profile-handle {
-            position: fixed;
-            top: 50%;
-            left: 0;
-            transform: translate(-50%, -50%);
-            width: 30px;
-            height: 90px;
-            background: #1d6f2a;
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 2601;
-            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
-        }
-
-        .profile-handle i {
-            color: #fff;
-            transition: transform 0.2s ease;
-        }
-
-        .profile-handle.open i {
-            transform: rotate(180deg);
-        }
-
-        .profile-handle.hidden {
-            display: none;
-        }
         .profile-drawer h3 { font-size: 1.1rem; margin-bottom: 12px; }
         .profile-drawer .drawer-close {
             position: absolute;
@@ -132,13 +101,9 @@
 
     <!-- PERFIL DESLIZABLE IZQUIERDA -->
     <div id="profile-drawer" class="profile-drawer">
-        <button class="drawer-close" onclick="toggleProfileDrawer(false)">&times;</button>
         <h3>Perfil</h3>
         <div id="profile-status"></div>
         <div id="profile-actions"></div>
-    </div>
-    <div id="profile-handle" class="profile-handle" title="Abrir perfil">
-        <i class="fa-solid fa-chevron-right"></i>
     </div>
 
     <!-- TOP STRIP -->
@@ -397,42 +362,22 @@
                 session = JSON.parse(user);
             }
             updateProfileDrawer();
-            renderProfileHandle();
-        }
-
-        function renderProfileHandle() {
-            const handle = document.getElementById('profile-handle');
-            if (!handle) return;
-            handle.classList.toggle('hidden', false); // siempre visible para abrir drawer
-            handle.title = session ? 'Panel de usuario' : 'Iniciar sesión / Ver panel';
         }
 
         function setupHoverDrawer() {
-            const handle = document.getElementById('profile-handle');
+            const sessionArea = document.getElementById('session-area');
             const drawer = document.getElementById('profile-drawer');
-            if (!handle || !drawer) return;
+            if (!sessionArea || !drawer) return;
 
-            const openDrawer = () => {
-                drawer.classList.add('open');
-                handle.classList.add('open');
-            };
+            const openDrawer = () => drawer.classList.add('open');
             const closeDrawer = () => {
-                if (!drawer.matches(':hover') && !handle.matches(':hover')) {
+                if (!drawer.matches(':hover') && !sessionArea.matches(':hover')) {
                     drawer.classList.remove('open');
-                    handle.classList.remove('open');
                 }
             };
 
-            handle.addEventListener('click', () => {
-                if (drawer.classList.contains('open')) {
-                    drawer.classList.remove('open');
-                    handle.classList.remove('open');
-                } else {
-                    openDrawer();
-                }
-            });
-            handle.addEventListener('mouseenter', openDrawer);
-            handle.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
+            sessionArea.addEventListener('mouseenter', openDrawer);
+            sessionArea.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
 
             drawer.addEventListener('mouseenter', openDrawer);
             drawer.addEventListener('mouseleave', () => setTimeout(closeDrawer, 80));
@@ -447,7 +392,6 @@
             localStorage.removeItem('oc_user');
             session = null;
             updateProfileDrawer();
-            renderProfileHandle();
             toggleProfileDrawer(false);
         }
 

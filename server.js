@@ -219,7 +219,7 @@ function verificarToken(req, res, next) {
 }
 
 function soloAdmin(req, res, next) {
-  if (!['superadmin', 'editor', 'autor', 'moderador'].includes(req.usuario.rol))
+  if (!['superadmin', 'admin', 'editor', 'autor', 'moderador'].includes(req.usuario.rol))
     return res.status(403).json({ error: 'Acceso denegado. Solo roles editoriales.' });
   next();
 }

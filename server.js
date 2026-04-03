@@ -108,7 +108,7 @@ const usuarioSchema = new mongoose.Schema({
   password: { type: String, required: false }, // opcional para Google auth
   googleId: { type: String, sparse: true }, // único para usuarios de Google
   foto:     { type: String }, // URL de foto de perfil de Google
-  rol:      { type: String, enum: ['admin', 'usuario'], default: 'usuario' },
+  rol:      { type: String, enum: ['superadmin', 'editor', 'autor', 'moderador', 'usuario'], default: 'usuario' },
   activo:   { type: Boolean, default: true },
   creadoEn: { type: Date, default: Date.now }
 });
@@ -157,6 +157,35 @@ const guiaSchema = new mongoose.Schema({
 });
 const Guia = mongoose.model('Guia', guiaSchema);
 
+const noticiaSchema = new mongoose.Schema({
+  titulo:        { type: String, required: true },
+  resumen:       { type: String, required: true }, // resumen corto para listados
+  contenido:     [{ // array de bloques ordenados
+    tipo:         { type: String, enum: ['texto', 'imagen', 'link', 'separador'], required: true },
+    contenido:    { type: String, required: true }, // texto, URL de imagen, URL de link, o vacío para separador
+    alt:          String, // para imágenes
+    tituloLink:   String // para links
+  }],
+  imagenPrincipal: String, // URL de Supabase
+  mediaInterna:   [String], // lista de URLs de imágenes/links embebidos en Supabase
+  tags:           [String], // categorías/tags
+  categoria:      { type: String, enum: ['seguridad', 'infraestructura', 'medioambiente', 'gobierno', 'otro'], default: 'otro' },
+  fechaPublicacion: { type: Date },
+  estado:         { type: String, enum: ['borrador', 'revision', 'publicado', 'programado', 'archivado'], default: 'borrador' },
+  prioridad:      { type: String, enum: ['normal', 'destacada'], default: 'normal' },
+  autor:          { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario', required: true },
+  version:        { type: Number, default: 1 },
+  versiones:      [{ // historial de versiones
+    version:      Number,
+    contenido:    [{ tipo: String, contenido: String, alt: String, tituloLink: String }],
+    fecha:        { type: Date, default: Date.now },
+    autor:        { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' }
+  }],
+  creadoEn:       { type: Date, default: Date.now },
+  actualizadoEn:  { type: Date, default: Date.now }
+});
+const Noticia = mongoose.model('Noticia', noticiaSchema);
+
 // ── HELPER: subir archivos a Supabase Storage ────────────────
 async function subirArchivos(files, carpeta = 'evidencia') {
   const urls = [];
@@ -190,8 +219,8 @@ function verificarToken(req, res, next) {
 }
 
 function soloAdmin(req, res, next) {
-  if (req.usuario.rol !== 'admin')
-    return res.status(403).json({ error: 'Acceso denegado. Solo administradores.' });
+  if (!['superadmin', 'editor', 'autor', 'moderador'].includes(req.usuario.rol))
+    return res.status(403).json({ error: 'Acceso denegado. Solo roles editoriales.' });
   next();
 }
 
@@ -383,6 +412,92 @@ app.delete('/api/guias/:id', verificarToken, soloAdmin, async (req, res) => {
   try {
     await Guia.findByIdAndDelete(req.params.id);
     res.json({ mensaje: 'Guía eliminada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── RUTAS: NOTICIAS/ALERTAS ──────────────────────────────────
+
+// GET /api/noticias — lista pública de noticias publicadas
+app.get('/api/noticias', async (req, res) => {
+  try {
+    const filtro = { estado: 'publicado' };
+    if (req.query.categoria) filtro.categoria = req.query.categoria;
+    if (req.query.tag) filtro.tags = { $in: [req.query.tag] };
+    const noticias = await Noticia.find(filtro)
+      .populate('autor', 'nombre foto')
+      .sort({ prioridad: -1, fechaPublicacion: -1 });
+    res.json(noticias);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/noticias/:id — detalle de noticia
+app.get('/api/noticias/:id', async (req, res) => {
+  try {
+    const noticia = await Noticia.findById(req.params.id).populate('autor', 'nombre foto');
+    if (!noticia || noticia.estado !== 'publicado') return res.status(404).json({ error: 'Noticia no encontrada' });
+    res.json(noticia);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/noticias — crear nueva noticia (editorial)
+app.post('/api/noticias', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const noticia = new Noticia({ ...req.body, autor: req.usuario.id });
+    await noticia.save();
+    res.status(201).json(noticia);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// PUT /api/noticias/:id — editar noticia (editorial)
+app.put('/api/noticias/:id', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const noticia = await Noticia.findById(req.params.id);
+    if (!noticia) return res.status(404).json({ error: 'Noticia no encontrada' });
+    // Guardar versión anterior
+    noticia.versiones.push({
+      version: noticia.version,
+      contenido: noticia.contenido,
+      autor: noticia.autor,
+      fecha: noticia.actualizadoEn
+    });
+    noticia.version += 1;
+    Object.assign(noticia, req.body);
+    noticia.actualizadoEn = new Date();
+    await noticia.save();
+    res.json(noticia);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// DELETE /api/noticias/:id — archivar noticia (editorial)
+app.delete('/api/noticias/:id', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const noticia = await Noticia.findByIdAndUpdate(req.params.id, { estado: 'archivado' }, { new: true });
+    if (!noticia) return res.status(404).json({ error: 'Noticia no encontrada' });
+    res.json({ mensaje: 'Noticia archivada' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/noticias/admin — lista para admin (todos los estados)
+app.get('/api/noticias/admin', verificarToken, soloAdmin, async (req, res) => {
+  try {
+    const filtro = {};
+    if (req.query.estado) filtro.estado = req.query.estado;
+    const noticias = await Noticia.find(filtro)
+      .populate('autor', 'nombre foto')
+      .sort({ actualizadoEn: -1 });
+    res.json(noticias);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

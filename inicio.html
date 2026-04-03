@@ -7,6 +7,65 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="icono.png" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .profile-drawer-right {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 270px;
+            height: 100%;
+            background: #0e2b18;
+            color: #fff;
+            transform: translateX(100%);
+            transition: transform 0.25s ease;
+            z-index: 2500;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .profile-drawer-right.open { transform: translateX(0); }
+        .profile-drawer-right h3 { margin-bottom: 12px; }
+        .profile-drawer-right .drawer-close {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+        .profile-drawer-right p { margin: 8px 0; }
+        .profile-drawer-right .role-tag {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 4px 8px;
+            font-size: 0.78rem;
+            display: inline-block;
+        }
+        .profile-drawer-right .action-btn {
+            margin-top: 16px;
+            width: 100%;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .profile-drawer-right .action-btn.logout { background: #ff4757; color: #fff; }
+        .profile-drawer-right .action-btn.login { background: #1d6f2a; color: #fff; }
+        .profile-btn {
+            background: #1d6f2a;
+            border: 1px solid #166630;
+            border-radius: 4px;
+            color: #fff;
+            padding: 5px 10px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 12px;
+        }
+    </style>
 </head>
 <body>
 
@@ -20,6 +79,9 @@
         <div class="top-bar-right">
             <a href="#"><i class="fa-solid fa-file-shield"></i> Portal de Transparencia</a>
             <a href="#"><i class="fa-solid fa-scale-balanced"></i> Normativa RNE</a>
+            <button class="profile-btn" onclick="toggleProfileDrawer(true)">
+                <i class="fa-solid fa-user"></i> Perfil
+            </button>
         </div>
     </div>
 
@@ -309,12 +371,84 @@
         </main>
     </div>
 
+    <div id="profile-drawer-right" class="profile-drawer-right">
+        <button class="drawer-close" onclick="toggleProfileDrawer(false)">&times;</button>
+        <h3>Panel de usuario</h3>
+        <div id="profile-status-right"></div>
+        <div id="profile-actions-right"></div>
+    </div>
+
     <!-- FOOTER -->
     <footer>
         <i class="fa-solid fa-circle-info"></i>
         <strong>Observatorio Ciudadano de Juan Guerra</strong> &nbsp;·&nbsp; 2026 &nbsp;·&nbsp;
         Proyecto ciudadano no oficial &nbsp;·&nbsp; No representa a ninguna entidad gubernamental
     </footer>
+
+    <script>
+        let session = null;
+
+        function toggleProfileDrawer(show) {
+            const drawer = document.getElementById('profile-drawer-right');
+            if (show) drawer.classList.add('open'); else drawer.classList.remove('open');
+        }
+
+        function updateProfileDrawer() {
+            const statusEl = document.getElementById('profile-status-right');
+            const actionsEl = document.getElementById('profile-actions-right');
+
+            if (!session) {
+                statusEl.innerHTML = '<p><strong>Sesión no iniciada</strong><br>Inicia sesión para usar todas las funcionalidades.</p>';
+                actionsEl.innerHTML = '<button class="action-btn login" onclick="window.location.href=\'/auth/google\';">Iniciar sesión con Google</button>';
+            } else {
+                const name = session.nombre || 'Usuario';
+                const role = session.rol || 'usuario';
+                statusEl.innerHTML = `<p><strong>${name}</strong></p><p>${session.email || ''}</p><span class="role-tag">Rol: ${role}</span>`;
+                let extra = role === 'admin' ? '<p style="margin-top: 10px;">Acceso administrativo</p>' : '<p style="margin-top: 10px;">Acceso como usuario</p>';
+                actionsEl.innerHTML = `${extra}<button class="action-btn logout" onclick="logout();">Cerrar sesión</button>`;
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('oc_token');
+            localStorage.removeItem('oc_user');
+            session = null;
+            updateProfileDrawer();
+            toggleProfileDrawer(false);
+        }
+
+        function loadSession() {
+            const token = localStorage.getItem('oc_token');
+            const user = localStorage.getItem('oc_user');
+            if (token && user) {
+                session = JSON.parse(user);
+            }
+            updateProfileDrawer();
+        }
+
+        function initAuth() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                localStorage.setItem('oc_token', token);
+                fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.usuario) {
+                            localStorage.setItem('oc_user', JSON.stringify(data.usuario));
+                            session = data.usuario;
+                            updateProfileDrawer();
+                        }
+                        window.history.replaceState({}, '', window.location.pathname);
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+            loadSession();
+        });
+    </script>
 
 </body>
 </html>

@@ -7,15 +7,39 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .main-header { background: linear-gradient(135deg, #fbc02d, #f9a825); }
-        .news-feed { display: flex; flex-direction: column; gap: 20px; padding: 20px; }
-        .news-card {
-            background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden; cursor: pointer; transition: transform 0.2s;
-            border-left: 4px solid #fbc02d;
+        .main-header {
+            background: linear-gradient(135deg, #2c3e50 0%, #096dce 40%, #1abc9c 100%);
+            color: #fff;
+            text-align: center;
+            padding: 25px 20px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.25);
         }
-        .news-card:hover { transform: translateY(-2px); }
-        .news-card.destacada { border-left-color: #f57c00; }
+        .main-header h1 { margin: 0; font-size: 2.1rem; letter-spacing: 0.08rem; text-transform: uppercase; }
+        .main-header p { margin: 6px 0 12px; opacity: 0.85; }
+        .main-header .btn-submit {
+            margin-top: 6px;
+            background: #ffeb3b;
+            color: #222;
+            border: none;
+            box-shadow: 0 2px 7px rgba(0,0,0,0.18);
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+        .news-feed { display: flex; flex-direction: column; gap: 18px; padding: 18px 20px 28px; background: #f5fbff; min-height: calc(100vh - 164px); }
+        .news-card {
+            background: linear-gradient(135deg, #ffffff, #f7fcff);
+            border-radius: 12px;
+            border: 1px solid rgba(29, 110, 210, 0.16);
+            box-shadow: 0 6px 18px rgba(13, 55, 124, 0.1);
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            display: flex;
+            flex-wrap: wrap;
+            border-left: 6px solid #0984e3;
+        }
+        .news-card:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(13,55,124,0.2); }
+        .news-card.destacada { border-left-color: #d32f2f; }
         .card-content { display: flex; padding: 15px; }
         .card-thumbnail { width: 120px; height: 80px; background: #f5f5f5; border-radius: 4px; margin-right: 15px; overflow: hidden; }
         .card-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
@@ -44,8 +68,11 @@
         .close-detail { position: absolute; top: 10px; right: 10px; background: #333; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
         .loading { text-align: center; padding: 40px; }
         .no-news { text-align: center; padding: 40px; color: #666; }
-        .filter-bar { padding: 20px; background: #f9f9f9; border-bottom: 1px solid #eee; }
-        .filter-select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .filter-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: linear-gradient(135deg, #ffffff, #d8f3fc); border-bottom: 1px solid #a8d9ef; position: sticky; top: 0; z-index: 2; }
+        .filter-bar label { font-weight: 700; color: #055a8c; }
+        .filter-select { padding: 8px 12px; border: 1px solid #7ab5d6; border-radius: 6px; min-width: 210px; background: #fff; }
+        .filter-select:focus { outline: none; border-color: #0584c9; box-shadow: 0 0 0 3px rgba(13, 122, 188, 0.2); }
+        .detail-panel { background: linear-gradient(180deg, #f7fbff, #ffffff 32%); }
     </style>
 </head>
 <body>

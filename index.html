@@ -370,6 +370,25 @@
             updateProfileDrawer();
         }
 
+        function setupHoverDrawer() {
+            const sessionArea = document.getElementById('session-area');
+            const drawer = document.getElementById('profile-drawer');
+            if (!sessionArea || !drawer) return;
+
+            sessionArea.addEventListener('mouseenter', () => {
+                if (session) {
+                    drawer.classList.add('open');
+                } else {
+                    drawer.classList.add('open');
+                }
+            });
+            sessionArea.addEventListener('mouseleave', () => {
+                drawer.classList.remove('open');
+            });
+            drawer.addEventListener('mouseenter', () => drawer.classList.add('open'));
+            drawer.addEventListener('mouseleave', () => drawer.classList.remove('open'));
+        }
+
         function renderSessionArea() {
             const area = document.getElementById('session-area');
 
@@ -417,7 +436,10 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', cargarSesion);
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarSesion();
+            setupHoverDrawer();
+        });
     </script>
 
 
